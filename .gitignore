@@ -1,0 +1,74 @@
+# --- Dependencies ---
+node_modules/
+.pnpm-store/
+
+# --- Build output ---
+dist/
+build/
+*.tsbuildinfo
+
+# --- Astro ---
+.astro/
+
+# --- Netlify ---
+.netlify/
+
+# --- Environment (only the template is tracked) ---
+.env
+.env.*
+!.env.example
+
+# --- Secrets and keys ---
+secrets/
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+*.der
+*.jks
+*.keystore
+id_*
+*.gpg
+.npmrc.local
+
+# --- Logs ---
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- Test / coverage ---
+coverage/
+.nyc_output/
+
+# --- Caches ---
+.cache/
+.eslintcache
+.prettiercache
+.turbo/
+.vite/
+
+# --- OS ---
+.DS_Store
+._*
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# --- Editors ---
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-workspace
+
+# --- Claude Code (personal settings stay local; project settings are tracked) ---
+.claude/settings.local.json

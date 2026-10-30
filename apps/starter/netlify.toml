@@ -1,0 +1,17 @@
+# Netlify site settings: set "Base directory" to apps/starter in the Netlify UI.
+# Secrets are configured only in the Netlify dashboard, never here.
+
+[build]
+  command = "pnpm --filter @web-studio/starter... build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "24"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"

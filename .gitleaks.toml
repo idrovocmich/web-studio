@@ -1,0 +1,12 @@
+# Gitleaks configuration for web-studio.
+# Used by the local pre-commit hook (.githooks/pre-commit) and by CI (.github/workflows/gitleaks.yml).
+
+title = "web-studio"
+
+# Start from the full upstream rule set; never remove rules here.
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Lockfile hashes are not secrets"
+paths = ['''(^|/)pnpm-lock\.yaml$''']

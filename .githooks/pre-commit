@@ -1,0 +1,11 @@
+#!/bin/sh
+# Blocks any commit whose staged changes contain a secret.
+# Fails closed: if gitleaks is not installed, the commit is blocked too.
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "pre-commit: gitleaks is not installed, so the commit is blocked." >&2
+  echo "Install it (Windows: winget install --id Gitleaks.Gitleaks -e) and retry." >&2
+  exit 1
+fi
+
+exec gitleaks git --pre-commit --staged --redact --no-banner --config .gitleaks.toml

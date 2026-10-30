@@ -27,3 +27,13 @@ Client brands live in separate private repositories; this repo is structure only
 - Público: únicamente la estructura del motor.
 - Si necesitas una credencial, pídeme que la configure yo directamente; nunca
   me pidas que la pegue en el chat.
+
+## Credenciales y publicación
+
+- Las API keys y tokens solo viven en archivos `.env` locales (ignorados por git),
+  en GitHub Secrets o en el panel de Netlify.
+- El código solo lee variables de entorno (`process.env.NOMBRE`,
+  `import.meta.env.NOMBRE`) y nunca contiene valores. Cada variable nueva se
+  documenta por nombre en `.env.example`, sin valor.
+- La publicación en npm usa trusted publishing (OIDC desde GitHub Actions), sin
+  tokens de npm guardados en ningún sitio.

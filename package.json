@@ -12,19 +12,27 @@
   "scripts": {
     "prepare": "git config core.hooksPath .githooks",
     "build": "pnpm -r build",
-    "typecheck": "pnpm -r typecheck",
+    "build:packages": "pnpm -r --filter \"./packages/*\" build",
+    "typecheck": "pnpm build:packages && pnpm -r typecheck",
     "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "changeset": "changeset",
+    "version-packages": "changeset version && prettier --write \"packages/*/CHANGELOG.md\" \".changeset\""
   },
   "devDependencies": {
+    "@changesets/cli": "catalog:",
     "@eslint/js": "catalog:",
+    "@types/node": "catalog:",
     "eslint": "catalog:",
     "eslint-plugin-astro": "catalog:",
     "globals": "catalog:",
     "prettier": "catalog:",
     "prettier-plugin-astro": "catalog:",
     "typescript": "catalog:",
-    "typescript-eslint": "catalog:"
+    "typescript-eslint": "catalog:",
+    "vitest": "catalog:"
   }
 }

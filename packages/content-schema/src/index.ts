@@ -1,5 +1,5 @@
 /**
- * @web-studio/content-schema
+ * @idrovocmich/content-schema
  * Content collection schemas that brand content must conform to.
  */
-export const packageName = "@web-studio/content-schema" as const;
+export const packageName = "@idrovocmich/content-schema" as const;

@@ -1,0 +1,75 @@
+{
+  "$schema": "../../dist/brand.schema.json",
+  "id": "casa-terracota",
+  "name": "Casa Terracota",
+  "description": "Marca ficticia de prueba: estudio de cerámica artesanal. Cálida, editorial y pausada. No es un cliente real.",
+  "palette": {
+    "primary": "oklch(0.52 0.13 40)",
+    "accent": { "l": 0.58, "c": 0.09, "h": 130 },
+    "neutral": { "c": 0.018, "h": 70 },
+    "danger": "oklch(0.52 0.17 22)"
+  },
+  "typography": {
+    "display": {
+      "family": "Fraunces",
+      "fallback": ["Georgia", "ui-serif", "serif"],
+      "weights": [400, 600],
+      "source": { "kind": "google" },
+      "usage": "Titulares y citas destacadas."
+    },
+    "body": {
+      "family": "Work Sans",
+      "fallback": ["ui-sans-serif", "system-ui", "sans-serif"],
+      "weights": [400, 500, 600],
+      "source": { "kind": "google" }
+    },
+    "mono": {
+      "family": "IBM Plex Mono",
+      "fallback": ["ui-monospace", "monospace"],
+      "weights": [400],
+      "source": { "kind": "google" }
+    },
+    "pairing": "Una serif con carácter artesanal para titulares, equilibrada por una sans humanista muy legible en textos largos.",
+    "scale": { "baseMin": 1.0625, "baseMax": 1.1875, "ratioMin": 1.2, "ratioMax": 1.333 }
+  },
+  "logos": {
+    "primary": { "file": "logos/primary.svg", "alt": "Casa Terracota" },
+    "variants": [
+      {
+        "kind": "mark",
+        "file": "logos/mark.svg",
+        "background": "any",
+        "alt": "Símbolo de Casa Terracota"
+      },
+      {
+        "kind": "inverse",
+        "file": "logos/inverse.svg",
+        "background": "dark",
+        "alt": "Casa Terracota"
+      }
+    ],
+    "minSizePx": 96,
+    "clearSpace": "Altura del arco del símbolo en todos los lados."
+  },
+  "imagery": {
+    "style": "Fotografía con luz natural lateral, texturas de barro y manos trabajando; colores terrosos y sombras suaves.",
+    "keywords": ["artesanal", "luz natural", "textura", "taller", "calma"],
+    "do": ["Primeros planos de piezas con imperfecciones visibles", "Espacios con madera y lino"],
+    "dont": ["Fondos blancos de estudio", "Filtros saturados o fríos"]
+  },
+  "voice": {
+    "tone": ["cálida", "pausada", "cercana"],
+    "description": "Habla como una artesana que explica su oficio a una persona curiosa: sin prisa y sin tecnicismos innecesarios.",
+    "vocabulary": {
+      "prefer": ["pieza", "oficio", "a mano"],
+      "avoid": ["producto", "stock", "oferta flash"]
+    },
+    "examples": ["Cada pieza sale del horno con su propia historia."]
+  },
+  "neverDo": [
+    "Usar el terracota sobre el verde de acento en textos",
+    "Deformar o rotar el símbolo",
+    "Usar mayúsculas sostenidas en titulares"
+  ],
+  "style": { "shape": "round", "motion": "calm", "elevation": "soft" }
+}

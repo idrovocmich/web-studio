@@ -14,6 +14,7 @@ concurrency:
 
 jobs:
   verify:
+    # Keep this name: branch protection on main requires this exact check.
     name: Install, typecheck, lint, build
     runs-on: ubuntu-latest
     steps:
@@ -41,5 +42,20 @@ jobs:
       - name: Format check
         run: pnpm format:check
 
+      - name: Test
+        run: pnpm test
+
       - name: Build
         run: pnpm build
+
+      - name: Build the starter with every fixture brand
+        run: |
+          for brand in packages/brand-contract/fixtures/*/; do
+            WS_BRAND="$(basename "$brand")" pnpm --filter @idrovocmich/starter build
+          done
+
+      - name: Check published package contents
+        run: |
+          for pkg in tokens brand-contract; do
+            (cd "packages/$pkg" && pnpm pack --dry-run)
+          done

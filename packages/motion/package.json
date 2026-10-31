@@ -1,5 +1,5 @@
 {
-  "name": "@web-studio/motion",
+  "name": "@idrovocmich/motion",
   "version": "0.0.0",
   "private": true,
   "description": "Motion primitives and choreography presets driven by motion tokens.",

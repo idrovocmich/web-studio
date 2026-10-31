@@ -1,24 +1,58 @@
 {
-  "name": "@web-studio/brand-contract",
-  "version": "0.0.0",
-  "private": true,
-  "description": "Typed contract that every private brand repository must satisfy to plug into the engine.",
+  "name": "@idrovocmich/brand-contract",
+  "version": "0.1.0",
+  "description": "Zod contract every brand must satisfy (palette, typography, logos, imagery, voice, never-do rules) and the function that turns a valid brand into its final design tokens.",
   "license": "MIT",
+  "author": "idrovocmich",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/idrovocmich/web-studio.git",
+    "directory": "packages/brand-contract"
+  },
+  "homepage": "https://github.com/idrovocmich/web-studio/tree/main/packages/brand-contract#readme",
+  "bugs": "https://github.com/idrovocmich/web-studio/issues",
+  "keywords": [
+    "brand",
+    "design-system",
+    "zod",
+    "design-tokens"
+  ],
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
-    }
+    },
+    "./node": {
+      "types": "./dist/node.d.ts",
+      "default": "./dist/node.js"
+    },
+    "./brand.schema.json": "./dist/brand.schema.json",
+    "./package.json": "./package.json"
   },
   "files": [
-    "dist"
+    "dist",
+    "!dist/**/*.test.*",
+    "!dist/**/*.map"
   ],
+  "engines": {
+    "node": ">=22"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "build": "tsc -p tsconfig.json && node scripts/emit-schema.mjs",
+    "typecheck": "tsc -p tsconfig.test.json",
+    "prepack": "pnpm run build"
+  },
+  "dependencies": {
+    "@idrovocmich/tokens": "workspace:^",
+    "zod": "catalog:"
   },
   "devDependencies": {
+    "@types/node": "catalog:",
     "typescript": "catalog:"
   }
 }

@@ -7,14 +7,33 @@ Client brands live in separate private repositories; this repo is structure only
 
 - pnpm workspaces monorepo: `packages/*` (libraries) and `apps/*` (sites).
 - Strict TypeScript everywhere; no `any` without a written reason.
-- Before finishing any change, run `pnpm typecheck`, `pnpm lint`, `pnpm format:check`
-  and `pnpm build`.
-- Package names use the `@web-studio/` scope. Shared dependency versions live in
+- Before finishing any change, run `pnpm typecheck`, `pnpm lint`, `pnpm format:check`,
+  `pnpm test` and `pnpm build`.
+- Package names use the `@idrovocmich/` scope. Shared dependency versions live in
   the `catalog:` of `pnpm-workspace.yaml`.
 - Styling: Tailwind CSS v4 driven by design tokens; no hard-coded brand values in
   the engine.
 - Never use `git commit --no-verify` or otherwise skip the gitleaks hook.
 - Never add client names, assets, content or configuration to this repository.
+- `main` is protected: every change goes through a pull request with green `ci` and
+  `gitleaks` checks.
+
+## Tokens and brands
+
+- Tokens are W3C DTCG in three tiers: primitive → semantic → component. Component
+  tokens may only reference semantic tokens; `validateTiers()` enforces it.
+- Every foreground color declares the backgrounds it must pass WCAG AA against
+  (`$extensions["com.idrovocmich.ws"].contrast`). Never lower a minimum to make a brand pass.
+- Brand fixtures in `packages/brand-contract/fixtures/` must be clearly fictional.
+- Contract error messages are written in Spanish.
+
+## Versioning and publishing
+
+- Only `@idrovocmich/tokens` and `@idrovocmich/brand-contract` are published.
+- A change to a published package needs a changeset and the version bump in the same
+  pull request (`pnpm changeset` then `pnpm version-packages`).
+- Never run `npm publish` or `pnpm publish`, and never create or ask for npm tokens:
+  publishing happens only in `.github/workflows/release.yml` via trusted publishing.
 
 ## REGLA PERMANENTE DE SEGURIDAD
 

@@ -1,4 +1,4 @@
-# @web-studio/ui
+# @idrovocmich/ui
 
 Low-level, token-driven UI primitives.
 

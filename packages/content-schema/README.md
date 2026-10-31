@@ -1,4 +1,4 @@
-# @web-studio/content-schema
+# @idrovocmich/content-schema
 
 Content collection schemas that brand content must conform to.
 

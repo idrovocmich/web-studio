@@ -1,24 +1,58 @@
 {
-  "name": "@web-studio/tokens",
-  "version": "0.0.0",
-  "private": true,
-  "description": "Brand-agnostic design token schema (color, type, space, radius, motion) and its CSS custom-property output.",
+  "name": "@idrovocmich/tokens",
+  "version": "0.1.0",
+  "description": "Three-tier W3C DTCG design tokens (primitive, semantic, component) with a Style Dictionary pipeline to CSS variables and a Tailwind CSS v4 @theme block.",
   "license": "MIT",
+  "author": "idrovocmich",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/idrovocmich/web-studio.git",
+    "directory": "packages/tokens"
+  },
+  "homepage": "https://github.com/idrovocmich/web-studio/tree/main/packages/tokens#readme",
+  "bugs": "https://github.com/idrovocmich/web-studio/issues",
+  "keywords": [
+    "design-tokens",
+    "dtcg",
+    "style-dictionary",
+    "tailwindcss",
+    "oklch"
+  ],
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
-    }
+    },
+    "./tokens.css": "./dist/css/tokens.css",
+    "./theme.css": "./dist/css/theme.css",
+    "./tokens.json": "./dist/tokens.json",
+    "./package.json": "./package.json"
   },
   "files": [
-    "dist"
+    "dist",
+    "!dist/**/*.test.*",
+    "!dist/**/*.map"
   ],
+  "engines": {
+    "node": ">=22"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "build": "tsc -p tsconfig.json && node scripts/emit-css.mjs",
+    "typecheck": "tsc -p tsconfig.test.json",
+    "prepack": "pnpm run build"
+  },
+  "dependencies": {
+    "culori": "catalog:",
+    "style-dictionary": "catalog:"
   },
   "devDependencies": {
+    "@types/culori": "catalog:",
+    "@types/node": "catalog:",
     "typescript": "catalog:"
   }
 }

@@ -10,6 +10,10 @@ build/
 # --- Astro ---
 .astro/
 
+# --- Starter: generated from the active brand by scripts/build-brand.ts ---
+apps/starter/src/generated/
+apps/starter/public/brand/
+
 # --- Netlify ---
 .netlify/
 

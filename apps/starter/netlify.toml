@@ -2,7 +2,7 @@
 # Secrets are configured only in the Netlify dashboard, never here.
 
 [build]
-  command = "pnpm --filter @web-studio/starter... build"
+  command = "pnpm --filter @idrovocmich/starter... build"
   publish = "dist"
 
 [build.environment]

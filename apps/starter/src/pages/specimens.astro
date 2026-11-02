@@ -1,0 +1,457 @@
+---
+import Base from "../layouts/Base.astro";
+import {
+  brand,
+  contrast,
+  dark,
+  light,
+  logoSrc,
+  tokensUnder,
+  type SpecimenToken,
+} from "../lib/brand";
+
+const darkByName = new Map(dark.map((t) => [t.name, t.resolved]));
+const label = (t: SpecimenToken): string => t.path.slice(1).join(".");
+
+const semanticColors = tokensUnder("semantic", "color");
+const ramps = Object.entries(
+  Object.groupBy(tokensUnder("primitive", "color"), (t) => t.path[2] ?? "otros"),
+);
+const sections = [
+  ["Colores", "#colores"],
+  ["Contraste", "#contraste"],
+  ["Tipografía", "#tipografia"],
+  ["Espaciado", "#espaciado"],
+  ["Radios", "#radios"],
+  ["Sombras y bordes", "#sombras"],
+  ["Movimiento", "#movimiento"],
+  ["Breakpoints y grid", "#grid"],
+  ["Componentes", "#componentes"],
+  ["Logos", "#logos"],
+  ["Imagen y voz", "#voz"],
+] as const;
+const modes = [
+  ["light", "Modo claro"],
+  ["dark", "Modo oscuro"],
+] as const;
+const totalTokens = light.length;
+const failing = contrast.filter((r) => !r.pass).length;
+---
+
+<Base title="Especímenes">
+  <div class="ws-container flex flex-col gap-2xl py-xl">
+    <header class="flex flex-col gap-sm">
+      <p class="text-caption tracking-caps text-content-muted uppercase">Especímenes de marca</p>
+      <h1 class="text-h1">{brand.name}</h1>
+      <p class="max-w-prose text-content-secondary">{brand.description}</p>
+      <p class="text-small text-content-muted">
+        {totalTokens} tokens · {contrast.length} pares de contraste AA (
+        {failing === 0 ? "todos correctos" : `${failing} fallan`})
+      </p>
+      <nav aria-label="Secciones" class="flex flex-wrap gap-xs text-small">
+        {sections.map(([name, href]) => (
+          <a class="ws-link" href={href}>
+            {name}
+          </a>
+        ))}
+      </nav>
+    </header>
+
+    <section id="colores" class="flex flex-col gap-lg">
+      <h2 class="text-h2">Colores semánticos</h2>
+      <div class="grid gap-md md:grid-cols-2">
+        {modes.map(([mode, title]) => (
+          <div
+            data-theme={mode}
+            class="rounded-surface border border-line-subtle bg-surface-base p-md text-content-primary"
+          >
+            <h3 class="mb-sm text-h4">{title}</h3>
+            <ul class="grid grid-cols-2 gap-xs sm:grid-cols-3">
+              {semanticColors.map((t) => (
+                <li class="flex flex-col gap-3xs">
+                  <span
+                    class="h-12 rounded-control border border-line-subtle"
+                    style={`background: var(${t.name})`}
+                  />
+                  <code class="font-mono text-caption">{label(t).replace("color.", "")}</code>
+                  <code class="font-mono text-caption text-content-muted">
+                    {mode === "dark" ? (darkByName.get(t.name) ?? t.resolved) : t.resolved}
+                  </code>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      <h3 class="text-h3">Rampas primitivas (OKLCH)</h3>
+      <div class="flex flex-col gap-sm">
+        {ramps.map(([role, steps]) => (
+          <div class="grid grid-cols-[6rem_1fr] items-center gap-sm">
+            <span class="font-mono text-small">{role}</span>
+            <ul class="grid grid-cols-11 gap-3xs">
+              {(steps ?? []).map((t) => (
+                <li class="flex flex-col gap-3xs" title={`${t.name}: ${t.resolved}`}>
+                  <span class="h-10 rounded-control" style={`background: ${t.resolved}`} />
+                  <span class="text-center font-mono text-caption text-content-muted">
+                    {t.path.at(-1)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section id="contraste" class="flex flex-col gap-md">
+      <h2 class="text-h2">Contraste WCAG AA</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-small">
+          <thead class="text-content-muted">
+            <tr>
+              <th class="py-2xs pr-sm">Muestra</th>
+              <th class="py-2xs pr-sm">Texto / elemento</th>
+              <th class="py-2xs pr-sm">Fondo</th>
+              <th class="py-2xs pr-sm">Modo</th>
+              <th class="py-2xs pr-sm">Ratio</th>
+              <th class="py-2xs">Mínimo</th>
+            </tr>
+          </thead>
+          <tbody>
+            {contrast.map((r) => (
+              <tr class="border-t border-line-subtle">
+                <td class="py-2xs pr-sm" data-theme={r.mode}>
+                  <span
+                    class="inline-block rounded-control px-xs py-3xs font-semibold"
+                    style={`color: var(--ws-${r.foreground.split(".").slice(1).join("-")}); background: var(--ws-${r.background.split(".").slice(1).join("-")})`}
+                  >
+                    Aa
+                  </span>
+                </td>
+                <td class="py-2xs pr-sm font-mono">
+                  {r.foreground.replace("semantic.color.", "")}
+                </td>
+                <td class="py-2xs pr-sm font-mono">
+                  {r.background.replace("semantic.color.", "")}
+                </td>
+                <td class="py-2xs pr-sm">{r.mode === "light" ? "claro" : "oscuro"}</td>
+                <td
+                  class:list={[
+                    "py-2xs pr-sm font-mono",
+                    r.pass ? "text-feedback-success" : "text-feedback-danger",
+                  ]}
+                >
+                  {r.ratio}:1 {r.pass ? "✓" : "✗"}
+                </td>
+                <td class="py-2xs font-mono">{r.minimum}:1</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="tipografia" class="flex flex-col gap-lg">
+      <h2 class="text-h2">Tipografía</h2>
+      <p class="max-w-prose text-content-secondary">{brand.typography.pairing}</p>
+      <div class="grid gap-md md:grid-cols-3">
+        {tokensUnder("semantic", "font", "family").map((t) => (
+          <div class="ws-card flex flex-col gap-xs">
+            <span class="text-caption text-content-muted">{label(t)}</span>
+            <span class="text-h2" style={`font-family: var(${t.name})`}>
+              Aa Ññ 0123
+            </span>
+            <code class="font-mono text-caption text-content-muted">{t.resolved}</code>
+          </div>
+        ))}
+      </div>
+      <h3 class="text-h3">Escala fluida</h3>
+      <ul class="flex flex-col gap-sm">
+        {tokensUnder("semantic", "text")
+          .toReversed()
+          .map((t) => (
+            <li class="grid gap-3xs border-b border-line-subtle pb-sm md:grid-cols-[10rem_1fr] md:items-baseline">
+              <code class="font-mono text-caption text-content-muted">
+                {label(t)}
+                <br />
+                {light.find((p) => `var(${p.name})` === t.css)?.resolved ?? t.resolved}
+              </code>
+              <span
+                class="truncate font-display"
+                style={`font-size: var(${t.name}); line-height: var(--ws-leading-heading)`}
+              >
+                {brand.voice.examples?.[0] ?? brand.name}
+              </span>
+            </li>
+          ))}
+      </ul>
+      <div class="grid gap-md md:grid-cols-3">
+        {(
+          [
+            ["Pesos", tokensUnder("semantic", "font", "weight"), "font-weight"],
+            ["Interlineado", tokensUnder("semantic", "leading"), "line-height"],
+            ["Tracking", tokensUnder("semantic", "tracking"), "letter-spacing"],
+          ] as const
+        ).map(([title, list, prop]) => (
+          <div class="ws-card flex flex-col gap-xs">
+            <h4 class="text-h4">{title}</h4>
+            {list.map((t) => (
+              <p style={`${prop}: var(${t.name})`}>
+                <span class="font-mono text-caption text-content-muted">
+                  {label(t)} = {t.resolved}
+                </span>
+                <br />
+                Hamburguesa cuántica
+              </p>
+            ))}
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section id="espaciado" class="flex flex-col gap-md">
+      <h2 class="text-h2">Espaciado</h2>
+      <ul class="flex flex-col gap-2xs">
+        {tokensUnder("semantic", "space").map((t) => (
+          <li class="grid grid-cols-[8rem_1fr] items-center gap-sm">
+            <code class="font-mono text-caption">
+              {label(t)} · {t.resolved}
+            </code>
+            <span class="h-3 rounded-control bg-action-primary" style={`width: var(${t.name})`} />
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section id="radios" class="flex flex-col gap-md">
+      <h2 class="text-h2">Radios</h2>
+      <ul class="grid grid-cols-2 gap-md sm:grid-cols-4">
+        {tokensUnder("semantic", "radius").map((t) => (
+          <li class="flex flex-col gap-2xs">
+            <span
+              class="h-20 border-2 border-action-primary bg-accent-subtle"
+              style={`border-radius: var(${t.name})`}
+            />
+            <code class="font-mono text-caption">
+              {label(t)} · {t.resolved}
+            </code>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section id="sombras" class="flex flex-col gap-md">
+      <h2 class="text-h2">Sombras y bordes</h2>
+      <ul class="grid gap-lg sm:grid-cols-3">
+        {tokensUnder("semantic", "shadow").map((t) => (
+          <li
+            class="flex h-28 items-end rounded-surface bg-surface-base p-sm"
+            style={`box-shadow: var(${t.name})`}
+          >
+            <code class="font-mono text-caption">{label(t)}</code>
+          </li>
+        ))}
+        {tokensUnder("semantic", "border").map((t) => (
+          <li class="flex h-28 items-end rounded-surface p-sm" style={`border: var(${t.name})`}>
+            <code class="font-mono text-caption">
+              {label(t)} · {t.resolved}
+            </code>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section id="movimiento" class="flex flex-col gap-md">
+      <h2 class="text-h2">Movimiento</h2>
+      <p class="text-small text-content-muted">
+        Pasa el cursor o el foco por cada fila para ver la duración y la curva.
+      </p>
+      <ul class="flex flex-col gap-xs">
+        {tokensUnder("semantic", "motion", "duration").map((t) => (
+          <li
+            class="motion-row"
+            tabindex="0"
+            style={`--d: var(${t.name}); --e: var(--ws-motion-ease-standard)`}
+          >
+            <code class="font-mono text-caption">
+              {label(t)} · {t.resolved}
+            </code>
+            <span class="motion-dot" />
+          </li>
+        ))}
+        {tokensUnder("semantic", "motion", "ease").map((t) => (
+          <li
+            class="motion-row"
+            tabindex="0"
+            style={`--d: var(--ws-motion-duration-slower); --e: var(${t.name})`}
+          >
+            <code class="font-mono text-caption">
+              {label(t)} · {t.resolved}
+            </code>
+            <span class="motion-dot" />
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section id="grid" class="flex flex-col gap-md">
+      <h2 class="text-h2">Breakpoints y grid</h2>
+      <ul class="flex flex-wrap gap-sm">
+        {tokensUnder("semantic", "breakpoint").map((t) => (
+          <li class="rounded-pill border border-line-strong px-sm py-3xs font-mono text-caption">
+            {t.path.at(-1)} ≥ {t.resolved}
+          </li>
+        ))}
+      </ul>
+      <div class="specimen-grid">
+        {Array.from({ length: 12 }, (_, i) => (
+          <span class="rounded-control bg-accent-subtle py-xs text-center font-mono text-caption text-accent-on-subtle">
+            {i + 1}
+          </span>
+        ))}
+      </div>
+      <p class="text-small text-content-muted">
+        Columnas:{" "}
+        {tokensUnder("semantic", "layout", "columns")
+          .map((t) => `${t.path.at(-1)} ${t.resolved}`)
+          .join(" · ")}{" "}
+        — gutter y márgenes según tokens <code class="font-mono">layout.*</code>.
+      </p>
+    </section>
+
+    <section id="componentes" class="flex flex-col gap-md">
+      <h2 class="text-h2">Tokens de componente</h2>
+      <div class="flex flex-wrap items-center gap-md">
+        <button type="button" class="ws-button">
+          Botón primario
+        </button>
+        <a href="#componentes" class="ws-link">
+          Enlace
+        </a>
+        <input class="specimen-input" placeholder="Campo de texto" aria-label="Campo de ejemplo" />
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-small">
+          <tbody>
+            {light
+              .filter((t) => t.path[0] === "component")
+              .map((t) => (
+                <tr class="border-t border-line-subtle">
+                  <td class="py-3xs pr-sm font-mono">{t.name}</td>
+                  <td class="py-3xs pr-sm font-mono text-content-muted">{t.css}</td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="logos" class="flex flex-col gap-md">
+      <h2 class="text-h2">Logos</h2>
+      <p class="text-small text-content-muted">
+        Tamaño mínimo: {brand.logos.minSizePx}px · Espacio de respeto: {brand.logos.clearSpace}
+      </p>
+      <ul class="grid gap-md sm:grid-cols-3">
+        <li class="ws-card flex flex-col items-start gap-sm" data-theme="light">
+          <img
+            src={logoSrc(brand.logos.primary.file)}
+            alt={brand.logos.primary.alt}
+            class="h-12 w-auto"
+          />
+          <code class="font-mono text-caption">primary</code>
+        </li>
+        {brand.logos.variants.map((v) => (
+          <li
+            class="ws-card flex flex-col items-start gap-sm"
+            data-theme={v.background === "dark" ? "dark" : "light"}
+          >
+            <img src={logoSrc(v.file)} alt={v.alt} class="h-12 w-auto" />
+            <code class="font-mono text-caption">
+              {v.kind} · fondo {v.background}
+            </code>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section id="voz" class="grid gap-md md:grid-cols-2">
+      <div class="ws-card flex flex-col gap-xs">
+        <h2 class="text-h3">Dirección de imagen</h2>
+        <p>{brand.imagery.style}</p>
+        <p class="text-small text-content-muted">{brand.imagery.keywords.join(" · ")}</p>
+        <h3 class="mt-xs text-h4">Sí</h3>
+        <ul class="list-disc pl-md">
+          {brand.imagery.do.map((d) => (
+            <li>{d}</li>
+          ))}
+        </ul>
+        <h3 class="mt-xs text-h4">No</h3>
+        <ul class="list-disc pl-md">
+          {brand.imagery.dont.map((d) => (
+            <li>{d}</li>
+          ))}
+        </ul>
+      </div>
+      <div class="ws-card flex flex-col gap-xs">
+        <h2 class="text-h3">Voz</h2>
+        <p class="text-lead">{brand.voice.tone.join(" · ")}</p>
+        <p>{brand.voice.description}</p>
+        <p class="text-small">
+          <strong>Preferir:</strong>
+          {brand.voice.vocabulary.prefer.join(", ")} · <strong>Evitar:</strong>
+          {brand.voice.vocabulary.avoid.join(", ")}
+        </p>
+        <h3 class="mt-xs text-h4">Nunca hacer</h3>
+        <ul class="list-disc pl-md">
+          {brand.neverDo.map((rule) => (
+            <li>{rule}</li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .motion-row {
+    display: grid;
+    grid-template-columns: minmax(0, 16rem) 1fr;
+    align-items: center;
+    gap: var(--ws-space-sm);
+    padding-block: var(--ws-space-3xs);
+  }
+  .motion-dot {
+    width: 1rem;
+    height: 1rem;
+    border-radius: var(--ws-radius-pill);
+    background: var(--ws-color-action-primary);
+    transition: translate var(--d) var(--e);
+  }
+  .motion-row:hover .motion-dot,
+  .motion-row:focus-visible .motion-dot {
+    translate: min(24rem, 50vw) 0;
+  }
+  .specimen-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--ws-layout-columns-compact), 1fr);
+    gap: var(--ws-layout-gutter-compact);
+  }
+  @media (width >= 48rem) {
+    .specimen-grid {
+      grid-template-columns: repeat(var(--ws-layout-columns-wide), 1fr);
+      gap: var(--ws-layout-gutter-wide);
+    }
+  }
+  .specimen-input {
+    padding: var(--ws-space-2xs) var(--ws-space-xs);
+    border: var(--ws-input-border);
+    border-radius: var(--ws-input-radius);
+    background: var(--ws-input-bg);
+    color: var(--ws-input-fg);
+  }
+  .specimen-input:focus-visible {
+    outline: none;
+    border: var(--ws-input-border-focus);
+  }
+</style>

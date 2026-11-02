@@ -1,0 +1,75 @@
+{
+  "$schema": "../../dist/brand.schema.json",
+  "id": "voltio-labs",
+  "name": "Voltio Labs",
+  "description": "Marca ficticia de prueba: herramientas de software para equipos técnicos. Fría, precisa y rápida. No es un cliente real.",
+  "palette": {
+    "primary": { "l": 0.5, "c": 0.22, "h": 275 },
+    "accent": "oklch(0.62 0.19 140)",
+    "neutral": { "c": 0.02, "h": 250 },
+    "warning": "oklch(0.62 0.16 75)"
+  },
+  "typography": {
+    "display": {
+      "family": "Space Grotesk",
+      "fallback": ["ui-sans-serif", "system-ui", "sans-serif"],
+      "weights": [500, 700],
+      "source": { "kind": "google" }
+    },
+    "body": {
+      "family": "IBM Plex Sans",
+      "fallback": ["ui-sans-serif", "system-ui", "sans-serif"],
+      "weights": [400, 600],
+      "source": { "kind": "google" }
+    },
+    "mono": {
+      "family": "JetBrains Mono",
+      "fallback": ["ui-monospace", "monospace"],
+      "weights": [400, 700],
+      "source": { "kind": "google" },
+      "usage": "Código, cifras y etiquetas técnicas."
+    },
+    "pairing": "Una grotesca geométrica con rasgos técnicos para titulares y una sans neutra para lectura densa; la mono refuerza el carácter técnico.",
+    "scale": { "baseMin": 0.9375, "baseMax": 1, "ratioMin": 1.125, "ratioMax": 1.2 }
+  },
+  "logos": {
+    "primary": { "file": "logos/primary.svg", "alt": "Voltio Labs" },
+    "variants": [
+      {
+        "kind": "mark",
+        "file": "logos/mark.svg",
+        "background": "light",
+        "alt": "Símbolo de Voltio Labs"
+      },
+      {
+        "kind": "monochrome",
+        "file": "logos/monochrome.svg",
+        "background": "dark",
+        "alt": "Voltio Labs"
+      }
+    ],
+    "minSizePx": 64,
+    "clearSpace": "Media altura del símbolo alrededor del logotipo."
+  },
+  "imagery": {
+    "style": "Interfaces y diagramas reales sobre fondos oscuros, con luz dura y acentos de color neón en detalles.",
+    "keywords": ["precisión", "sistemas", "contraste", "velocidad"],
+    "do": ["Capturas de producto con datos verosímiles", "Composiciones en retícula"],
+    "dont": ["Fotos de stock de personas señalando pantallas", "Ilustraciones 3D genéricas"]
+  },
+  "voice": {
+    "tone": ["directa", "precisa", "segura"],
+    "description": "Frases cortas, verbos concretos y cifras cuando las hay. Explica qué hace la herramienta, no cómo se siente.",
+    "vocabulary": {
+      "prefer": ["despliega", "mide", "automatiza"],
+      "avoid": ["revolucionario", "mágico", "sinergia"]
+    },
+    "examples": ["Despliega en 40 segundos. Mide cada cambio."]
+  },
+  "neverDo": [
+    "Usar degradados en el logotipo",
+    "Poner el verde de acento como fondo de bloques de texto",
+    "Redondear las esquinas de las tarjetas"
+  ],
+  "style": { "shape": "sharp", "motion": "snappy", "elevation": "flat" }
+}

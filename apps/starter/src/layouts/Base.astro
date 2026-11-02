@@ -1,0 +1,118 @@
+---
+import "../styles/global.css";
+import { brand, googleFontsHref, logoSrc } from "../lib/brand";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+const fontsHref = googleFontsHref();
+const darkLogo = brand.logos.variants.find((v) => v.background !== "light");
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} · {brand.name}</title>
+    {fontsHref && <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />}
+    {fontsHref && <link rel="stylesheet" href={fontsHref} />}
+    <script is:inline>
+      try {
+        const saved = localStorage.getItem("ws-theme");
+        if (saved === "light" || saved === "dark") document.documentElement.dataset.theme = saved;
+      } catch {
+        // Storage can be unavailable (private mode); fall back to the system theme.
+      }
+    </script>
+  </head>
+  <body class="min-h-dvh bg-surface-base text-content-primary antialiased">
+    <header class="border-b border-line-subtle">
+      <div class="ws-container flex items-center justify-between gap-md py-sm">
+        <a href="/" class="flex items-center" aria-label={`${brand.name}: inicio`}>
+          <img
+            src={logoSrc(brand.logos.primary.file)}
+            alt={brand.logos.primary.alt}
+            class="logo-light h-8 w-auto"
+          />
+          {darkLogo && (
+            <img
+              src={logoSrc(darkLogo.file)}
+              alt={darkLogo.alt}
+              class="logo-dark hidden h-8 w-auto"
+            />
+          )}
+        </a>
+        <nav class="flex items-center gap-md text-small">
+          <a class="ws-link" href="/">
+            Inicio
+          </a>
+          <a class="ws-link" href="/specimens">
+            Especímenes
+          </a>
+          <button
+            type="button"
+            id="theme-toggle"
+            class="rounded-pill border border-line-strong px-sm py-3xs text-caption"
+          >
+            Tema: sistema
+          </button>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer class="mt-section border-t border-line-subtle">
+      <p class="ws-container py-lg text-caption text-content-muted">
+        {brand.name} · Construido con web-studio. Marca activa:{" "}
+        <code class="font-mono">{brand.id}</code>
+      </p>
+    </footer>
+
+    <style>
+      :global([data-theme="dark"]) .logo-light {
+        display: none;
+      }
+      :global([data-theme="dark"]) .logo-dark {
+        display: block;
+      }
+      @media (prefers-color-scheme: dark) {
+        :global(:root:not([data-theme="light"])) .logo-light {
+          display: none;
+        }
+        :global(:root:not([data-theme="light"])) .logo-dark {
+          display: block;
+        }
+      }
+    </style>
+
+    <script>
+      const order = ["system", "light", "dark"] as const;
+      const labels = { system: "sistema", light: "claro", dark: "oscuro" };
+      const button = document.getElementById("theme-toggle");
+      const root = document.documentElement;
+      const current = (): (typeof order)[number] =>
+        root.dataset["theme"] === "light" || root.dataset["theme"] === "dark"
+          ? root.dataset["theme"]
+          : "system";
+      const render = (): void => {
+        if (button) button.textContent = `Tema: ${labels[current()]}`;
+      };
+      button?.addEventListener("click", () => {
+        const next = order[(order.indexOf(current()) + 1) % order.length] ?? "system";
+        if (next === "system") delete root.dataset["theme"];
+        else root.dataset["theme"] = next;
+        try {
+          if (next === "system") localStorage.removeItem("ws-theme");
+          else localStorage.setItem("ws-theme", next);
+        } catch {
+          // Storage can be unavailable (private mode); the toggle still works for this page.
+        }
+        render();
+      });
+      render();
+    </script>
+  </body>
+</html>

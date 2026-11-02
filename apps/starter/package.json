@@ -1,23 +1,27 @@
 {
-  "name": "@web-studio/starter",
+  "name": "@idrovocmich/starter",
   "version": "0.0.0",
   "private": true,
   "description": "Reference Astro site that brand repositories start from.",
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
+    "brand": "node scripts/build-brand.ts",
+    "dev": "pnpm run brand && astro dev",
+    "build": "pnpm run brand && astro build",
     "preview": "astro preview",
-    "typecheck": "astro check"
+    "typecheck": "pnpm run brand && astro check"
   },
   "dependencies": {
+    "@idrovocmich/brand-contract": "workspace:*",
+    "@idrovocmich/tokens": "workspace:*",
     "@tailwindcss/vite": "catalog:",
     "astro": "catalog:",
     "tailwindcss": "catalog:"
   },
   "devDependencies": {
     "@astrojs/check": "catalog:",
+    "@types/node": "catalog:",
     "typescript": "catalog:"
   }
 }

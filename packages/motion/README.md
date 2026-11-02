@@ -1,4 +1,4 @@
-# @web-studio/motion
+# @idrovocmich/motion
 
 Motion primitives and choreography presets driven by motion tokens.
 

@@ -1,0 +1,23 @@
+# Copy this file into each private brand repository as .github/dependabot.yml.
+# Dependabot opens one grouped pull request whenever a new engine version matches
+# the range in package.json, plus security updates for everything else.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    allow:
+      - dependency-name: "@idrovocmich/*"
+    groups:
+      web-studio-engine:
+        patterns: ["@idrovocmich/*"]
+    commit-message:
+      prefix: "deps(engine)"
+    labels: [dependencies, engine]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

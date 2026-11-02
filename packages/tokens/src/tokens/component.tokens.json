@@ -1,0 +1,37 @@
+{
+  "$description": "Component tokens. They may only reference semantic tokens.",
+  "button": {
+    "bg": { "$type": "color", "$value": "{semantic.color.action.primary}" },
+    "bg-hover": { "$type": "color", "$value": "{semantic.color.action.primary-hover}" },
+    "fg": { "$type": "color", "$value": "{semantic.color.action.on-primary}" },
+    "radius": { "$type": "dimension", "$value": "{semantic.radius.control}" },
+    "padding-x": { "$type": "dimension", "$value": "{semantic.space.md}" },
+    "padding-y": { "$type": "dimension", "$value": "{semantic.space.xs}" },
+    "font-weight": { "$type": "fontWeight", "$value": "{semantic.font.weight.strong}" },
+    "duration": { "$type": "duration", "$value": "{semantic.motion.duration.fast}" },
+    "ease": { "$type": "cubicBezier", "$value": "{semantic.motion.ease.standard}" }
+  },
+  "card": {
+    "bg": { "$type": "color", "$value": "{semantic.color.surface.subtle}" },
+    "fg": { "$type": "color", "$value": "{semantic.color.content.primary}" },
+    "border": { "$type": "border", "$value": "{semantic.border.default}" },
+    "radius": { "$type": "dimension", "$value": "{semantic.radius.surface}" },
+    "shadow": { "$type": "shadow", "$value": "{semantic.shadow.raised}" },
+    "padding": { "$type": "dimension", "$value": "{semantic.space.lg}" }
+  },
+  "link": {
+    "color": { "$type": "color", "$value": "{semantic.color.action.primary}" },
+    "color-hover": { "$type": "color", "$value": "{semantic.color.action.primary-hover}" }
+  },
+  "input": {
+    "bg": { "$type": "color", "$value": "{semantic.color.surface.base}" },
+    "fg": { "$type": "color", "$value": "{semantic.color.content.primary}" },
+    "border": { "$type": "border", "$value": "{semantic.border.strong}" },
+    "border-focus": { "$type": "border", "$value": "{semantic.border.focus}" },
+    "radius": { "$type": "dimension", "$value": "{semantic.radius.control}" }
+  },
+  "section": {
+    "padding-y": { "$type": "dimension", "$value": "{semantic.space.section}" },
+    "gap": { "$type": "dimension", "$value": "{semantic.space.xl}" }
+  }
+}

@@ -1,5 +1,5 @@
 /**
- * @web-studio/ui
+ * @idrovocmich/ui
  * Low-level, token-driven UI primitives.
  */
-export const packageName = "@web-studio/ui" as const;
+export const packageName = "@idrovocmich/ui" as const;

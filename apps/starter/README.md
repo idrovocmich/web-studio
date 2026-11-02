@@ -1,10 +1,10 @@
-# @web-studio/starter
+# @idrovocmich/starter
 
 Reference Astro site (Astro + Tailwind CSS v4 + strict TypeScript) that private
 brand repositories start from. It contains no brand data.
 
 ```bash
-pnpm --filter @web-studio/starter dev
+pnpm --filter @idrovocmich/starter dev
 ```
 
 Netlify: set the site's base directory to `apps/starter`; `netlify.toml` there

@@ -1,21 +1,68 @@
 ---
-import "../styles/global.css";
+import Base from "../layouts/Base.astro";
+import { brand } from "../lib/brand";
 
-const title = "web-studio starter";
+const features = [
+  {
+    title: "Tokens en tres niveles",
+    body: "Primitivos, semánticos y de componente, en formato W3C DTCG.",
+  },
+  {
+    title: "Contraste AA verificado",
+    body: "Cada par de texto y fondo se mide en modo claro y oscuro.",
+  },
+  {
+    title: "Una marca, cero código",
+    body: "Cambia la marca activa y todo el sitio adopta su identidad.",
+  },
+];
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title}</title>
-  </head>
-  <body class="min-h-dvh bg-neutral-50 text-neutral-900 antialiased">
-    <main class="mx-auto flex max-w-2xl flex-col gap-4 px-6 py-24">
-      <h1 class="text-3xl font-semibold tracking-tight">{title}</h1>
-      <p class="text-neutral-600">
-        Structural engine is wired up. Brand tokens and the brand contract arrive in phase 2.
+<Base title="Inicio">
+  <section class="ws-container grid gap-xl py-section md:grid-cols-[3fr_2fr] md:items-end">
+    <div class="flex flex-col gap-md">
+      <p class="text-caption tracking-caps text-content-muted uppercase">
+        {brand.imagery.keywords.join(" · ")}
       </p>
-    </main>
-  </body>
-</html>
+      <h1 class="text-display">{brand.name}</h1>
+      <p class="max-w-prose text-lead text-content-secondary">
+        {brand.voice.examples?.[0] ?? brand.voice.description}
+      </p>
+      <div class="flex flex-wrap items-center gap-md">
+        <a class="ws-button" href="/specimens">
+          Ver especímenes
+        </a>
+        <a class="ws-link" href="#rasgos">
+          Cómo funciona
+        </a>
+      </div>
+    </div>
+    <div class="ws-card flex flex-col gap-sm">
+      <span class="text-caption text-content-muted">Voz</span>
+      <p class="text-h4">{brand.voice.tone.join(", ")}</p>
+      <p class="text-small text-content-secondary">{brand.voice.description}</p>
+    </div>
+  </section>
+
+  <section id="rasgos" class="bg-surface-subtle py-section">
+    <div class="ws-container grid gap-lg md:grid-cols-3">
+      {features.map((f) => (
+        <article class="ws-card flex flex-col gap-xs bg-surface-base">
+          <h2 class="text-h4">{f.title}</h2>
+          <p class="text-content-secondary">{f.body}</p>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="ws-container py-section">
+    <div class="rounded-surface bg-accent-subtle p-lg text-accent-on-subtle">
+      <h2 class="text-h3">Nunca hacer</h2>
+      <ul class="mt-sm list-disc pl-md">
+        {brand.neverDo.map((rule) => (
+          <li>{rule}</li>
+        ))}
+      </ul>
+    </div>
+  </section>
+</Base>

@@ -1,0 +1,56 @@
+name: release
+
+# Publishes to npm with trusted publishing (OIDC). No npm token is stored anywhere.
+# Safety switch: nothing runs until the repository variable NPM_PUBLISH_ENABLED is "true"
+# (Settings → Secrets and variables → Actions → Variables).
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish unpublished versions
+    if: vars.NPM_PUBLISH_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # push release tags
+      id-token: write # npm trusted publishing (OIDC) and provenance
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - name: Use an npm CLI that supports trusted publishing (>= 11.5.1)
+        run: npm install -g npm@^11.15.0 && npm --version
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Build and test
+        run: |
+          pnpm build
+          pnpm test
+
+      - name: Publish
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          node tools/release/publish-unpublished.mjs

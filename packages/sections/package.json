@@ -1,5 +1,5 @@
 {
-  "name": "@web-studio/sections",
+  "name": "@idrovocmich/sections",
   "version": "0.0.0",
   "private": true,
   "description": "Composable page sections built from ui primitives and configured through the brand contract.",

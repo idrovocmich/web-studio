@@ -66,7 +66,9 @@ describe("pages", () => {
     expect(messages).toEqual(
       expect.arrayContaining([
         expect.stringContaining("description: La descripción debe tener entre 50 y 160"),
-        expect.stringContaining("sections[0].type: Tipo de sección desconocido"),
+        expect.stringContaining(
+          'sections[0].type: Tipo de sección desconocido (type). Usa uno de: "hero"',
+        ),
         expect.stringContaining('sections[1].action.href: El enlace debe empezar por "/"'),
       ]),
     );
@@ -77,6 +79,62 @@ describe("pages", () => {
     expect(() => parsePage(page([]), '"pages/inicio.json"')).toThrow(
       /El contenido "pages\/inicio.json" no es válido \(1 problema\)/,
     );
+  });
+});
+
+describe("second batch of sections", () => {
+  it("checks comparison rows, the single recommended option and before/after", () => {
+    const comparison = {
+      type: "comparison",
+      title: "Planes",
+      variant: "before-after",
+      columns: [{ name: "A", highlight: true }, { name: "B", highlight: true }, { name: "C" }],
+      rows: [{ label: "Fila", values: [true, false] }],
+    };
+    const result = validatePage(page([comparison]));
+    const messages = !result.ok ? result.issues.map((i) => i.message) : [];
+    expect(messages).toEqual(
+      expect.arrayContaining([
+        'La fila "Fila" tiene 2 valores y hay 3 columnas.',
+        "Solo una opción puede ser la recomendada (highlight).",
+        'La variante "before-after" compara exactamente 2 columnas.',
+      ]),
+    );
+  });
+
+  it("requires an author for every testimonial and dates for a timeline", () => {
+    const result = validatePage(
+      page([
+        { type: "testimonials", quotes: [{ quote: "Una cita sin autor." }] },
+        {
+          type: "story",
+          title: "Historia",
+          variant: "timeline",
+          chapters: [
+            { title: "Uno", body: "Texto." },
+            { title: "Dos", body: "Texto." },
+          ],
+        },
+      ]),
+    );
+    const paths = !result.ok ? result.issues.map((i) => `${i.path}: ${i.message}`) : [];
+    expect(paths).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining("sections[0].quotes[0].author: Falta el autor"),
+        expect.stringContaining('sections[1].chapters: La variante "timeline" necesita una fecha'),
+      ]),
+    );
+  });
+
+  it("groups questions by topic only when there are topics", () => {
+    const faq = {
+      type: "faq",
+      title: "Preguntas",
+      variant: "two-column",
+      items: [1, 2, 3].map((n) => ({ question: `¿${n}?`, answer: "Sí." })),
+    };
+    const result = validatePage(page([faq]));
+    expect(!result.ok && result.issues[0]?.message).toContain("agrupa por tema");
   });
 });
 

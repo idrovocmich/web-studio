@@ -1,0 +1,213 @@
+---
+import type { Composition } from "@idrovocmich/brand-contract";
+import type { FaqSection } from "@idrovocmich/content-schema";
+import Container from "@idrovocmich/ui/Container.astro";
+import Eyebrow from "@idrovocmich/ui/Eyebrow.astro";
+import Heading from "@idrovocmich/ui/Heading.astro";
+import Split from "@idrovocmich/ui/Split.astro";
+import Stack from "@idrovocmich/ui/Stack.astro";
+import Text from "@idrovocmich/ui/Text.astro";
+import Section from "./Section.astro";
+import { faqVariant, indexLabel } from "./variants";
+
+interface Props {
+  section: FaqSection;
+  composition: Composition;
+}
+
+const { section, composition } = Astro.props;
+const variant = faqVariant(section, composition);
+const { eyebrow, title, items } = section;
+const base = section.id ?? "preguntas";
+const anchor = (i: number): string => `${base}-${i + 1}`;
+const topics = [...new Set(items.map((i) => i.topic ?? ""))];
+---
+
+<Section type="faq" {variant} id={section.id} signature={section.signature}>
+  <Container>
+    {variant === "accordion" && (
+      <Split ratio="5-7">
+        <Stack gap="sm">
+          {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+          <Heading level={2}>{title}</Heading>
+        </Stack>
+        <div class="faq-accordion">
+          {items.map((item) => (
+            <details>
+              <summary>{item.question}</summary>
+              <Text tone="secondary">{item.answer}</Text>
+            </details>
+          ))}
+        </div>
+      </Split>
+    )}
+
+    {variant === "index" && (
+      <Stack gap="xl">
+        <Stack gap="sm">
+          {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+          <Heading level={2}>{title}</Heading>
+        </Stack>
+        <Split ratio="4-8">
+          <nav aria-label={title}>
+            <ol class="faq-index">
+              {items.map((item, i) => (
+                <li>
+                  <a href={`#${anchor(i)}`}>
+                    <span class="faq-number" aria-hidden="true">
+                      {indexLabel(i)}
+                    </span>
+                    {item.question}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </nav>
+          <div class="faq-answers">
+            {items.map((item, i) => (
+              <article id={anchor(i)}>
+                <Heading level={3} size="h4">
+                  {item.question}
+                </Heading>
+                <Text tone="secondary">{item.answer}</Text>
+              </article>
+            ))}
+          </div>
+        </Split>
+      </Stack>
+    )}
+
+    {variant === "two-column" && (
+      <Stack gap="xl">
+        <Stack gap="sm">
+          {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+          <Heading level={2}>{title}</Heading>
+        </Stack>
+        <div class="faq-topics">
+          {topics.map((topic) => (
+            <section aria-label={topic}>
+              <Heading level={3} size="h3">
+                {topic}
+              </Heading>
+              <dl>
+                {items
+                  .filter((item) => (item.topic ?? "") === topic)
+                  .map((item) => (
+                    <div>
+                      <dt>{item.question}</dt>
+                      <dd>{item.answer}</dd>
+                    </div>
+                  ))}
+              </dl>
+            </section>
+          ))}
+        </div>
+      </Stack>
+    )}
+  </Container>
+</Section>
+
+<style>
+  /* Accordion: native details, nothing to break without JavaScript. */
+  .faq-accordion {
+    border-top: var(--ws-section-rule-strong);
+  }
+  details {
+    border-bottom: var(--ws-section-rule);
+  }
+  summary {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--ws-flow-gap-md);
+    padding-block: var(--ws-flow-gap-md);
+    font-weight: var(--ws-field-label-weight);
+    cursor: pointer;
+    list-style: none;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  summary::after {
+    content: "+";
+    flex: none;
+    color: var(--ws-section-index-color);
+  }
+  details[open] summary::after {
+    content: "−";
+  }
+  summary:focus-visible {
+    outline: var(--ws-link-focus);
+    outline-offset: 2px;
+  }
+  details > :global(.ws-text) {
+    padding-block-end: var(--ws-flow-gap-md);
+  }
+
+  /* Index: every question visible at once, answers below. */
+  .faq-index {
+    position: sticky;
+    top: var(--ws-flow-gap-lg);
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: var(--ws-section-rule-strong);
+  }
+  .faq-index a {
+    display: flex;
+    gap: var(--ws-flow-gap-sm);
+    padding-block: var(--ws-flow-gap-xs);
+    border-bottom: var(--ws-section-rule);
+    color: inherit;
+    font-size: var(--ws-text-size-small);
+    text-decoration: none;
+  }
+  .faq-index a:hover,
+  .faq-index a:focus-visible {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  .faq-number {
+    color: var(--ws-section-index-color);
+    font-family: var(--ws-eyebrow-font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+  .faq-answers {
+    display: grid;
+    gap: var(--ws-flow-gap-xl);
+  }
+  .faq-answers article {
+    display: grid;
+    gap: var(--ws-flow-gap-xs);
+    scroll-margin-top: var(--ws-flow-gap-lg);
+  }
+
+  /* Two columns: questions grouped by topic, side by side. */
+  .faq-topics {
+    display: grid;
+    gap: var(--ws-flow-gap-2xl);
+  }
+  .faq-topics section {
+    display: grid;
+    align-content: start;
+    gap: var(--ws-flow-gap-md);
+  }
+  dl {
+    display: grid;
+    gap: var(--ws-flow-gap-md);
+    margin: 0;
+  }
+  dt {
+    font-weight: var(--ws-field-label-weight);
+  }
+  dd {
+    margin: var(--ws-flow-gap-2xs) 0 0;
+    color: var(--ws-text-color-secondary);
+  }
+  @media (width >= 48rem) {
+    .faq-topics {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--ws-flow-gutter-wide);
+    }
+  }
+</style>

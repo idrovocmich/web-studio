@@ -1,0 +1,147 @@
+---
+import type { Composition } from "@idrovocmich/brand-contract";
+import type { GallerySection } from "@idrovocmich/content-schema";
+import Container from "@idrovocmich/ui/Container.astro";
+import Eyebrow from "@idrovocmich/ui/Eyebrow.astro";
+import Figure from "@idrovocmich/ui/Figure.astro";
+import Heading from "@idrovocmich/ui/Heading.astro";
+import Stack from "@idrovocmich/ui/Stack.astro";
+import Section from "./Section.astro";
+import { galleryVariant } from "./variants";
+
+interface Props {
+  section: GallerySection;
+  composition: Composition;
+  /** Accessible name for the scrollable strip (the engine does not assume a language). */
+  stripLabel?: string;
+}
+
+const { section, composition, stripLabel = "Galería desplazable" } = Astro.props;
+const variant = galleryVariant(section, composition);
+const { eyebrow, title, images } = section;
+const [first, ...rest] = images;
+// Irregular mosaic: a repeating rhythm of tall, wide and square cells.
+const MOSAIC = ["3/4", "4/3", "1/1", "4/5", "16/9", "1/1"] as const;
+const mosaicRatio = (i: number) => MOSAIC[i % MOSAIC.length] ?? "1/1";
+---
+
+<Section type="gallery" {variant} id={section.id} signature={section.signature}>
+  <Container>
+    <Stack gap="xl">
+      {(eyebrow ?? title) && (
+        <Stack gap="sm">
+          {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+          {title && <Heading level={2}>{title}</Heading>}
+        </Stack>
+      )}
+
+      {variant === "mosaic" && (
+        <div class="gallery-mosaic">
+          {images.map((img, i) => (
+            <Figure
+              ratio={mosaicRatio(i)}
+              placeholder={img.alt}
+              {...(img.caption && { caption: img.caption })}
+            >
+              {img.src && <img src={img.src} alt={img.alt} loading="lazy" />}
+            </Figure>
+          ))}
+        </div>
+      )}
+
+      {variant === "strip" && (
+        <div class="gallery-strip" role="region" aria-label={title ?? stripLabel} tabindex="0">
+          {images.map((img) => (
+            <Figure
+              ratio="4/5"
+              placeholder={img.alt}
+              {...(img.caption && { caption: img.caption })}
+            >
+              {img.src && <img src={img.src} alt={img.alt} loading="lazy" />}
+            </Figure>
+          ))}
+        </div>
+      )}
+
+      {variant === "feature" && first && (
+        <div class="gallery-feature">
+          <Figure
+            ratio="16/9"
+            placeholder={first.alt}
+            {...(first.caption && { caption: first.caption })}
+          >
+            {first.src && <img src={first.src} alt={first.alt} />}
+          </Figure>
+          <div class="gallery-feature-thumbs">
+            {rest.map((img) => (
+              <Figure
+                ratio="1/1"
+                placeholder={img.alt}
+                {...(img.caption && { caption: img.caption })}
+              >
+                {img.src && <img src={img.src} alt={img.alt} loading="lazy" />}
+              </Figure>
+            ))}
+          </div>
+        </div>
+      )}
+    </Stack>
+  </Container>
+</Section>
+
+<style>
+  /* Mosaic: CSS columns, so images keep their own proportions. */
+  .gallery-mosaic {
+    columns: 2;
+    column-gap: var(--ws-flow-gap-md);
+  }
+  .gallery-mosaic > :global(*) {
+    margin-block-end: var(--ws-flow-gap-md);
+    break-inside: avoid;
+  }
+  @media (width >= 64rem) {
+    .gallery-mosaic {
+      columns: 3;
+      column-gap: var(--ws-flow-gutter-wide);
+    }
+  }
+
+  /* Strip: a horizontal row that scrolls (and snaps) with touch, trackpad or keyboard. */
+  .gallery-strip {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: min(75%, 20rem);
+    gap: var(--ws-flow-gap-md);
+    overflow-x: auto;
+    padding-block-end: var(--ws-flow-gap-sm);
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+  }
+  .gallery-strip > :global(*) {
+    scroll-snap-align: start;
+  }
+  .gallery-strip:focus-visible {
+    outline: var(--ws-link-focus);
+    outline-offset: 4px;
+  }
+
+  /* Feature: one large image leads, the rest follow small. */
+  .gallery-feature {
+    display: grid;
+    gap: var(--ws-flow-gap-md);
+  }
+  .gallery-feature-thumbs {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+    gap: var(--ws-flow-gap-md);
+  }
+  @media (width >= 64rem) {
+    .gallery-feature {
+      grid-template-columns: minmax(0, 8fr) minmax(0, 4fr);
+      align-items: start;
+    }
+    .gallery-feature-thumbs {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

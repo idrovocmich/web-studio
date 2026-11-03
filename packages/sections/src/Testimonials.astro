@@ -1,0 +1,186 @@
+---
+import type { Composition } from "@idrovocmich/brand-contract";
+import type { TestimonialsSection } from "@idrovocmich/content-schema";
+import Reveal from "@idrovocmich/motion/Reveal.astro";
+import Container from "@idrovocmich/ui/Container.astro";
+import Eyebrow from "@idrovocmich/ui/Eyebrow.astro";
+import Heading from "@idrovocmich/ui/Heading.astro";
+import Stack from "@idrovocmich/ui/Stack.astro";
+import Section from "./Section.astro";
+import { testimonialsVariant } from "./variants";
+
+interface Props {
+  section: TestimonialsSection;
+  composition: Composition;
+}
+
+const { section, composition } = Astro.props;
+const variant = testimonialsVariant(section, composition);
+const { eyebrow, title, quotes } = section;
+const [lead] = quotes;
+---
+
+<Section type="testimonials" {variant} id={section.id} signature={section.signature}>
+  <Container>
+    <Stack gap="xl">
+      {(eyebrow ?? title) && (
+        <Stack gap="sm">
+          {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+          {title && <Heading level={2}>{title}</Heading>}
+        </Stack>
+      )}
+
+      {variant === "single" && lead && (
+        <figure class="testimonial-single">
+          <blockquote>
+            <p>{lead.quote}</p>
+          </blockquote>
+          <figcaption>
+            <span class="testimonial-author">{lead.author}</span>
+            {lead.role && <span class="testimonial-role">{lead.role}</span>}
+          </figcaption>
+        </figure>
+      )}
+
+      {variant === "conversation" && (
+        <Reveal mode="stagger" class="testimonial-conversation">
+          {quotes.map((q) => (
+            <figure>
+              <blockquote>
+                <p>{q.quote}</p>
+              </blockquote>
+              <figcaption>
+                <span class="testimonial-author">{q.author}</span>
+                {q.role && <span class="testimonial-role">{q.role}</span>}
+              </figcaption>
+            </figure>
+          ))}
+        </Reveal>
+      )}
+
+      {variant === "with-figure" && (
+        <div class="testimonial-figures">
+          {quotes.map((q) => (
+            <figure>
+              {q.figure && (
+                <p class="testimonial-figure">
+                  <span class="testimonial-figure-value">{q.figure.value}</span>
+                  <span class="testimonial-role">{q.figure.label}</span>
+                </p>
+              )}
+              <blockquote>
+                <p>{q.quote}</p>
+              </blockquote>
+              <figcaption>
+                <span class="testimonial-author">{q.author}</span>
+                {q.role && <span class="testimonial-role">{q.role}</span>}
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      )}
+    </Stack>
+  </Container>
+</Section>
+
+<style>
+  figure {
+    display: grid;
+    align-content: start;
+    gap: var(--ws-flow-gap-md);
+    margin: 0;
+  }
+  blockquote {
+    margin: 0;
+  }
+  blockquote p {
+    margin: 0;
+    color: var(--ws-heading-color);
+    font-family: var(--ws-heading-font-family);
+    font-size: var(--ws-heading-size-h4);
+    line-height: var(--ws-heading-leading);
+    text-wrap: pretty;
+  }
+  figcaption {
+    display: grid;
+    gap: var(--ws-flow-gap-3xs);
+  }
+  .testimonial-author {
+    font-weight: var(--ws-field-label-weight);
+  }
+  .testimonial-role {
+    color: var(--ws-text-color-secondary);
+    font-size: var(--ws-text-size-small);
+  }
+
+  /* Single: one quote set as large as a headline, with the author offset to the right. */
+  .testimonial-single blockquote p {
+    font-size: min(var(--ws-heading-size-h1), 9cqi);
+    line-height: var(--ws-heading-leading-display);
+    letter-spacing: var(--ws-heading-tracking);
+  }
+  .testimonial-single blockquote p::before {
+    content: "“";
+  }
+  .testimonial-single blockquote p::after {
+    content: "”";
+  }
+  @media (width >= 48rem) {
+    .testimonial-single figcaption {
+      margin-inline-start: 50%;
+    }
+  }
+
+  /* Conversation: quotes in staggered columns, like replies. */
+  :global(.testimonial-conversation) {
+    display: grid;
+    gap: var(--ws-flow-gap-xl);
+  }
+  :global(.testimonial-conversation) > figure {
+    padding-inline-start: var(--ws-flow-gap-md);
+    border-left: var(--ws-section-rule-strong);
+  }
+  @media (width >= 48rem) {
+    :global(.testimonial-conversation) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--ws-flow-gutter-wide);
+    }
+    :global(.testimonial-conversation) > figure:nth-child(even) {
+      margin-block-start: var(--ws-flow-gap-2xl);
+    }
+  }
+
+  /* With figure: the number first, the quote as its evidence. */
+  .testimonial-figures {
+    display: grid;
+    gap: var(--ws-flow-gap-2xl);
+  }
+  .testimonial-figures > figure {
+    padding-top: var(--ws-flow-gap-md);
+    border-top: var(--ws-section-rule-strong);
+  }
+  .testimonial-figure {
+    display: grid;
+    gap: var(--ws-flow-gap-3xs);
+    margin: 0;
+  }
+  .testimonial-figure-value {
+    font-family: var(--ws-heading-font-family);
+    font-size: min(var(--ws-heading-size-display), 20cqi);
+    font-weight: var(--ws-heading-font-weight);
+    line-height: 1;
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+  :global(:root[data-ws-eyebrow="mono-caps"]) .testimonial-figure-value {
+    font-family: var(--ws-eyebrow-font-mono);
+  }
+  @media (width >= 64rem) {
+    .testimonial-figures > figure {
+      grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+      column-gap: var(--ws-flow-gutter-wide);
+    }
+    .testimonial-figures .testimonial-figure {
+      grid-row: span 2;
+    }
+  }
+</style>

@@ -1,0 +1,274 @@
+---
+import type { Composition } from "@idrovocmich/brand-contract";
+import type { ComparisonSection } from "@idrovocmich/content-schema";
+import Button from "@idrovocmich/ui/Button.astro";
+import Card from "@idrovocmich/ui/Card.astro";
+import Container from "@idrovocmich/ui/Container.astro";
+import Eyebrow from "@idrovocmich/ui/Eyebrow.astro";
+import Heading from "@idrovocmich/ui/Heading.astro";
+import Stack from "@idrovocmich/ui/Stack.astro";
+import Text from "@idrovocmich/ui/Text.astro";
+import Section from "./Section.astro";
+import { comparisonVariant } from "./variants";
+
+interface Props {
+  section: ComparisonSection;
+  composition: Composition;
+  /** Words for true/false cells and the recommended badge (the engine does not assume a language). */
+  labels?: { yes: string; no: string; recommended: string };
+}
+
+const {
+  section,
+  composition,
+  labels = { yes: "Sí", no: "No", recommended: "Recomendado" },
+} = Astro.props;
+const variant = comparisonVariant(section, composition);
+const { eyebrow, title, intro, columns, rows } = section;
+const cellText = (v: string | boolean): string =>
+  v === true ? labels.yes : v === false ? labels.no : v;
+---
+
+<Section type="comparison" {variant} id={section.id} signature={section.signature}>
+  <Container>
+    <Stack gap="xl">
+      <Stack gap="sm">
+        {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+        <Heading level={2}>{title}</Heading>
+        {intro && <Text tone="secondary">{intro}</Text>}
+      </Stack>
+
+      {variant === "table" && (
+        <div class="comparison-scroll" role="region" aria-label={title} tabindex="0">
+          <table>
+            <caption class="comparison-hidden">{title}</caption>
+            <thead>
+              <tr>
+                <td />
+                {columns.map((c) => (
+                  <th scope="col" data-highlight={c.highlight ? "" : undefined}>
+                    {c.name}
+                    {c.price && <span class="comparison-price">{c.price}</span>}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row) => (
+                <tr>
+                  <th scope="row">{row.label}</th>
+                  {row.values.map((v, i) => (
+                    <td data-highlight={columns[i]?.highlight ? "" : undefined}>
+                      {typeof v === "boolean" ? (
+                        <span class="comparison-mark" data-value={String(v)}>
+                          <span aria-hidden="true">{v ? "●" : "—"}</span>
+                          <span class="comparison-hidden">{cellText(v)}</span>
+                        </span>
+                      ) : (
+                        v
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {variant === "before-after" && (
+        <div class="comparison-before-after">
+          {columns.map((c, ci) => (
+            <section aria-label={c.name} data-side={ci === 0 ? "before" : "after"}>
+              <Heading level={3} size="h3">
+                {c.name}
+              </Heading>
+              {c.note && <Text tone="secondary">{c.note}</Text>}
+              <dl>
+                {rows.map((row) => (
+                  <div>
+                    <dt>{row.label}</dt>
+                    <dd>{cellText(row.values[ci] ?? "")}</dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+          ))}
+        </div>
+      )}
+
+      {variant === "plans" && (
+        <ul class="comparison-plans">
+          {columns.map((c, ci) => (
+            <Card
+              as="li"
+              surface={c.highlight ? "raised" : "brand"}
+              data-highlight={c.highlight ? "" : undefined}
+            >
+              {c.highlight && <Eyebrow>{labels.recommended}</Eyebrow>}
+              <Heading level={3} size="h3">
+                {c.name}
+              </Heading>
+              {c.price && <p class="comparison-plan-price">{c.price}</p>}
+              {c.note && (
+                <Text size="small" tone="secondary">
+                  {c.note}
+                </Text>
+              )}
+              <ul class="comparison-plan-rows">
+                {rows.map((row) => {
+                  const v = row.values[ci];
+                  return v === false ? null : (
+                    <li>
+                      {row.label}
+                      {typeof v === "string" && <span>: {v}</span>}
+                    </li>
+                  );
+                })}
+              </ul>
+              {c.action &&
+                (c.highlight ? (
+                  <Button href={c.action.href}>{c.action.label}</Button>
+                ) : (
+                  <Button href={c.action.href} variant="quiet">
+                    {c.action.label}
+                  </Button>
+                ))}
+            </Card>
+          ))}
+        </ul>
+      )}
+    </Stack>
+  </Container>
+</Section>
+
+<style>
+  .comparison-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* Table: real table semantics, horizontally scrollable on small screens. */
+  .comparison-scroll {
+    overflow-x: auto;
+  }
+  .comparison-scroll:focus-visible {
+    outline: var(--ws-link-focus);
+    outline-offset: 4px;
+  }
+  table {
+    width: 100%;
+    min-width: 32rem;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+  }
+  th,
+  td {
+    padding: var(--ws-flow-gap-sm) var(--ws-flow-gap-md) var(--ws-flow-gap-sm) 0;
+    border-bottom: var(--ws-section-rule);
+    text-align: start;
+    vertical-align: top;
+  }
+  thead th {
+    font-family: var(--ws-heading-font-family);
+    font-size: var(--ws-heading-size-h4);
+    font-weight: var(--ws-heading-font-weight);
+    border-bottom: var(--ws-section-rule-strong);
+  }
+  tbody th {
+    font-weight: var(--ws-field-label-weight);
+  }
+  [data-highlight] {
+    background: var(--ws-section-bg-subtle);
+    padding-inline-start: var(--ws-flow-gap-md);
+  }
+  .comparison-price {
+    display: block;
+    color: var(--ws-text-color-secondary);
+    font-family: var(--ws-text-font-family);
+    font-size: var(--ws-text-size-small);
+    font-weight: 400;
+  }
+  .comparison-mark[data-value="false"] {
+    color: var(--ws-text-color-muted);
+  }
+
+  /* Before / after: two columns that read as a contrast, the second one stronger. */
+  .comparison-before-after {
+    display: grid;
+    gap: var(--ws-flow-gap-xl);
+  }
+  .comparison-before-after > section {
+    display: grid;
+    align-content: start;
+    gap: var(--ws-flow-gap-md);
+    padding-top: var(--ws-flow-gap-md);
+    border-top: var(--ws-section-rule);
+  }
+  .comparison-before-after > [data-side="before"] {
+    color: var(--ws-text-color-secondary);
+  }
+  .comparison-before-after > [data-side="after"] {
+    border-top: var(--ws-separator-heavy);
+  }
+  dl {
+    display: grid;
+    gap: var(--ws-flow-gap-xs);
+    margin: 0;
+  }
+  dl div {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--ws-flow-gap-sm);
+    padding-block-end: var(--ws-flow-gap-xs);
+    border-bottom: var(--ws-section-rule);
+  }
+  dt {
+    color: var(--ws-text-color-muted);
+  }
+  dd {
+    margin: 0;
+  }
+  @media (width >= 48rem) {
+    .comparison-before-after {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--ws-flow-gutter-wide);
+    }
+  }
+
+  /* Plans: the recommended plan is offset upwards and is the only primary action. */
+  .comparison-plans {
+    display: grid;
+    gap: var(--ws-flow-gap-md);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  @media (width >= 48rem) {
+    .comparison-plans {
+      grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+      align-items: end;
+    }
+    .comparison-plans > :global([data-highlight]) {
+      padding-block: calc(var(--ws-card-padding) * 1.5);
+    }
+  }
+  .comparison-plan-price {
+    margin: 0;
+    font-family: var(--ws-heading-font-family);
+    font-size: var(--ws-heading-size-h2);
+    line-height: 1;
+    font-variant-numeric: lining-nums;
+  }
+  .comparison-plan-rows {
+    display: grid;
+    gap: var(--ws-flow-gap-2xs);
+    margin: 0;
+    padding: 0 0 0 1.1em;
+    font-size: var(--ws-text-size-small);
+  }
+</style>

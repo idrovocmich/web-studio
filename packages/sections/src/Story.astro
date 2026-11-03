@@ -1,0 +1,175 @@
+---
+import type { Composition } from "@idrovocmich/brand-contract";
+import type { StorySection } from "@idrovocmich/content-schema";
+import Reveal from "@idrovocmich/motion/Reveal.astro";
+import Container from "@idrovocmich/ui/Container.astro";
+import Eyebrow from "@idrovocmich/ui/Eyebrow.astro";
+import Figure from "@idrovocmich/ui/Figure.astro";
+import Heading from "@idrovocmich/ui/Heading.astro";
+import Split from "@idrovocmich/ui/Split.astro";
+import Stack from "@idrovocmich/ui/Stack.astro";
+import Text from "@idrovocmich/ui/Text.astro";
+import Section from "./Section.astro";
+import { indexLabel, storyVariant } from "./variants";
+
+interface Props {
+  section: StorySection;
+  composition: Composition;
+}
+
+const { section, composition } = Astro.props;
+const variant = storyVariant(section, composition);
+const { eyebrow, title, intro, chapters } = section;
+const leadMedia = chapters.find((c) => c.media)?.media;
+---
+
+<Section type="story" {variant} id={section.id} signature={section.signature}>
+  <Container>
+    <Stack gap="xl">
+      <Stack gap="sm">
+        {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+        <Heading level={2}>{title}</Heading>
+        {intro && <Text tone="secondary">{intro}</Text>}
+      </Stack>
+
+      {variant === "scroll" && (
+        <Split ratio="5-7">
+          <div class="story-scroll-media">
+            <Figure ratio="3/4" placeholder={leadMedia?.alt ?? title}>
+              {leadMedia?.src && <img src={leadMedia.src} alt={leadMedia.alt} />}
+            </Figure>
+          </div>
+          <ol class="story-scroll-chapters">
+            {chapters.map((c, i) => (
+              <li>
+                <span class="story-index" aria-hidden="true">
+                  {indexLabel(i)}
+                </span>
+                <Heading level={3} size="h3">
+                  {c.title}
+                </Heading>
+                <Text tone="secondary">{c.body}</Text>
+              </li>
+            ))}
+          </ol>
+        </Split>
+      )}
+
+      {variant === "interleaved" && (
+        <ol class="story-interleaved">
+          {chapters.map((c, i) => (
+            <li>
+              <Split ratio={i % 2 === 0 ? "7-5" : "5-7"} reverse={i % 2 === 1} align="center">
+                <Stack gap="sm">
+                  <Heading level={3} size="h3">
+                    {c.title}
+                  </Heading>
+                  <Text tone="secondary">{c.body}</Text>
+                </Stack>
+                {c.media ? (
+                  <Figure ratio="4/5" placeholder={c.media.alt}>
+                    {c.media.src && <img src={c.media.src} alt={c.media.alt} />}
+                  </Figure>
+                ) : (
+                  <span class="story-pull" aria-hidden="true">
+                    {indexLabel(i)}
+                  </span>
+                )}
+              </Split>
+            </li>
+          ))}
+        </ol>
+      )}
+
+      {variant === "timeline" && (
+        <Reveal mode="stagger" as="ol" class="story-timeline">
+          {chapters.map((c) => (
+            <li>
+              <span class="story-date">{c.date}</span>
+              <Stack gap="2xs">
+                <Heading level={3} size="h4">
+                  {c.title}
+                </Heading>
+                <Text tone="secondary">{c.body}</Text>
+              </Stack>
+            </li>
+          ))}
+        </Reveal>
+      )}
+    </Stack>
+  </Container>
+</Section>
+
+<style>
+  ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .story-index,
+  .story-date {
+    color: var(--ws-section-index-color);
+    font-family: var(--ws-eyebrow-font-mono);
+    font-size: var(--ws-text-size-small);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Scroll: the image stays while the chapters pass next to it. */
+  .story-scroll-media {
+    position: sticky;
+    top: var(--ws-flow-gap-lg);
+    align-self: start;
+  }
+  .story-scroll-chapters {
+    display: grid;
+    gap: var(--ws-flow-gap-2xl);
+  }
+  .story-scroll-chapters li {
+    display: grid;
+    gap: var(--ws-flow-gap-sm);
+    padding-block-end: var(--ws-flow-gap-2xl);
+    border-bottom: var(--ws-section-rule);
+  }
+  .story-scroll-chapters li:last-child {
+    border-bottom: 0;
+  }
+
+  /* Interleaved: text and images alternate sides and proportions. */
+  .story-interleaved {
+    display: grid;
+    gap: var(--ws-flow-gap-3xl);
+  }
+  .story-pull {
+    color: var(--ws-section-index-color);
+    font-family: var(--ws-heading-font-family);
+    font-size: min(var(--ws-heading-size-display), 30cqi);
+    line-height: 1;
+  }
+
+  /* Timeline: dates on a rule, one row per chapter. */
+  :global(.story-timeline) {
+    border-left: var(--ws-section-rule-strong);
+    padding-inline-start: var(--ws-flow-gap-lg);
+  }
+  :global(.story-timeline) > li {
+    position: relative;
+    display: grid;
+    gap: var(--ws-flow-gap-2xs);
+    padding-block: var(--ws-flow-gap-md);
+  }
+  :global(.story-timeline) > li::before {
+    content: "";
+    position: absolute;
+    top: calc(var(--ws-flow-gap-md) + 0.45em);
+    left: calc(-1 * var(--ws-flow-gap-lg) - 0.3rem);
+    width: 0.6rem;
+    height: 0.6rem;
+    background: currentColor;
+  }
+  @media (width >= 48rem) {
+    :global(.story-timeline) > li {
+      grid-template-columns: 10rem minmax(0, 1fr);
+      gap: var(--ws-flow-gap-lg);
+    }
+  }
+</style>

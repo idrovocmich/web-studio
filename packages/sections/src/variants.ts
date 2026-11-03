@@ -1,5 +1,19 @@
 import type { Composition } from "@idrovocmich/brand-contract";
 import type {
+  COMPARISON_VARIANTS,
+  ComparisonSection,
+  CONTACT_VARIANTS,
+  ContactSection,
+  FAQ_VARIANTS,
+  FaqSection,
+  GALLERY_VARIANTS,
+  GallerySection,
+  METHOD_VARIANTS,
+  MethodSection,
+  STORY_VARIANTS,
+  StorySection,
+  TESTIMONIALS_VARIANTS,
+  TestimonialsSection,
   CtaSection,
   FEATURES_VARIANTS,
   FeaturesSection,
@@ -22,6 +36,13 @@ export type ProofVariant = (typeof PROOF_VARIANTS)[number];
 export type CtaVariant = (typeof CTA_VARIANTS)[number];
 export type HeaderVariant = (typeof HEADER_VARIANTS)[number];
 export type FooterVariant = (typeof FOOTER_VARIANTS)[number];
+export type StoryVariant = (typeof STORY_VARIANTS)[number];
+export type MethodVariant = (typeof METHOD_VARIANTS)[number];
+export type GalleryVariant = (typeof GALLERY_VARIANTS)[number];
+export type ComparisonVariant = (typeof COMPARISON_VARIANTS)[number];
+export type TestimonialsVariant = (typeof TESTIMONIALS_VARIANTS)[number];
+export type FaqVariant = (typeof FAQ_VARIANTS)[number];
+export type ContactVariant = (typeof CONTACT_VARIANTS)[number];
 
 /*
  * "auto" variants are chosen from the composition so the same content gets a different
@@ -81,6 +102,62 @@ export function footerVariant(site: Site, c: Composition): FooterVariant {
   if (c.headingScale === "monumental") return "signature";
   if (c.rhythm === "spacious") return "index";
   return "minimal";
+}
+
+export function storyVariant(section: StorySection, c: Composition): StoryVariant {
+  if (section.variant !== "auto") return section.variant;
+  const dated = section.chapters.every((ch) => ch.date);
+  if (c.rhythm === "tight" && dated) return "timeline";
+  if (c.media === "organic" || c.rhythm === "spacious") return "interleaved";
+  return "scroll";
+}
+
+export function methodVariant(section: MethodSection, c: Composition): MethodVariant {
+  if (section.variant !== "auto") return section.variant;
+  if (c.rhythm === "tight") return "columns";
+  if (c.rhythm === "spacious") return "steps";
+  return "phases";
+}
+
+export function galleryVariant(section: GallerySection, c: Composition): GalleryVariant {
+  if (section.variant !== "auto") return section.variant;
+  if (c.rhythm === "tight") return "strip";
+  if (c.asymmetry === "strong") return "feature";
+  return "mosaic";
+}
+
+export function comparisonVariant(section: ComparisonSection, c: Composition): ComparisonVariant {
+  if (section.variant !== "auto") return section.variant;
+  if (c.rhythm === "tight") return "table";
+  if (section.columns.some((col) => col.highlight)) return "plans";
+  return section.columns.length === 2 ? "before-after" : "table";
+}
+
+export function testimonialsVariant(
+  section: TestimonialsSection,
+  c: Composition,
+): TestimonialsVariant {
+  if (section.variant !== "auto") return section.variant;
+  const numeric = c.numerals === "tabular-nums" || c.numerals === "lining-nums";
+  if (numeric && section.quotes[0]?.figure) return "with-figure";
+  if (c.headingScale === "monumental" || section.quotes.length === 1) return "single";
+  return "conversation";
+}
+
+export function faqVariant(section: FaqSection, c: Composition): FaqVariant {
+  if (section.variant !== "auto") return section.variant;
+  const topics = new Set(section.items.map((i) => i.topic));
+  const grouped = section.items.every((i) => i.topic) && topics.size >= 2;
+  if (c.rhythm === "tight") return "index";
+  if (grouped && c.rhythm === "spacious") return "two-column";
+  return "accordion";
+}
+
+export function contactVariant(section: ContactSection, c: Composition): ContactVariant {
+  if (section.variant !== "auto") return section.variant;
+  if (c.rhythm === "tight") return "steps";
+  if (c.rhythm === "spacious") return "details";
+  return "form-aside";
 }
 
 /** Two-digit index ("01", "02"…) used by numbered compositions. */

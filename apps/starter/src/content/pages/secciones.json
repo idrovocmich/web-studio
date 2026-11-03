@@ -1,0 +1,225 @@
+{
+  "slug": "secciones",
+  "title": "Secciones",
+  "description": "Siete secciones más con el mismo contenido para todas las marcas: historia, método, galería, comparación, testimonios, preguntas y contacto.",
+  "sections": [
+    {
+      "type": "story",
+      "id": "historia",
+      "eyebrow": "Historia",
+      "title": "Cómo llega una marca a tener su propia estructura",
+      "intro": "Cuatro momentos, del primer encargo al sitio publicado.",
+      "chapters": [
+        {
+          "date": "Semana 1",
+          "title": "La dirección de arte",
+          "body": "La marca define su densidad, su contraste, sus formas, su voz tipográfica, su movimiento y una decisión memorable.",
+          "media": {
+            "alt": "Pruebas de color y tipografía sobre la mesa"
+          }
+        },
+        {
+          "date": "Semana 2",
+          "title": "El contenido",
+          "body": "Cada página se escribe como una lista de secciones. El contenido dice qué contar; la marca decide cómo se compone."
+        },
+        {
+          "date": "Semana 3",
+          "title": "La crítica",
+          "body": "Se capturan las páginas y se comparan con la dirección de arte. Lo que no la cumple se corrige antes de publicar.",
+          "media": {
+            "alt": "Capturas de pantalla anotadas"
+          }
+        },
+        {
+          "date": "Semana 4",
+          "title": "La publicación",
+          "body": "El sitio se despliega desde el repositorio privado de la marca, con contraste AA verificado en cada cambio."
+        }
+      ]
+    },
+    {
+      "type": "method",
+      "id": "metodo",
+      "eyebrow": "Método",
+      "title": "Cinco pasos, siempre en el mismo orden",
+      "intro": "Ninguno se salta: cada paso deja algo que el siguiente necesita.",
+      "steps": [
+        {
+          "title": "Brief",
+          "body": "Qué hace la marca, para quién y qué tiene que pasar cuando alguien llega al sitio.",
+          "duration": "1 sesión"
+        },
+        {
+          "title": "Dirección de arte",
+          "body": "Los controles de carácter y la firma, validados contra el contrato de marca.",
+          "duration": "2–3 días"
+        },
+        {
+          "title": "Estructura",
+          "body": "Páginas, secciones y su orden. Se aprueba antes de escribir una línea de código.",
+          "duration": "1 día"
+        },
+        {
+          "title": "Construcción",
+          "body": "El motor genera tokens y composición; el contenido se carga y se valida.",
+          "duration": "3–5 días"
+        },
+        {
+          "title": "Crítica y ajuste",
+          "body": "Capturas, comparación con la dirección de arte y correcciones.",
+          "duration": "2 días"
+        }
+      ]
+    },
+    {
+      "type": "gallery",
+      "id": "galeria",
+      "signature": true,
+      "eyebrow": "Galería",
+      "title": "Imágenes que siguen la forma de la marca",
+      "images": [
+        {
+          "alt": "Taller con luz de tarde",
+          "caption": "El espacio de trabajo"
+        },
+        {
+          "alt": "Detalle de materiales",
+          "caption": "Materiales"
+        },
+        {
+          "alt": "Retrato del equipo"
+        },
+        {
+          "alt": "Producto sobre fondo neutro",
+          "caption": "Producto"
+        },
+        {
+          "alt": "Proceso en curso"
+        },
+        {
+          "alt": "Resultado final instalado",
+          "caption": "Resultado"
+        }
+      ]
+    },
+    {
+      "type": "comparison",
+      "id": "planes",
+      "eyebrow": "Comparación",
+      "title": "Tres formas de empezar",
+      "intro": "La recomendada es la que más marcas eligen en su primer sitio.",
+      "columns": [
+        {
+          "name": "Una página",
+          "note": "Para validar la dirección de arte.",
+          "action": {
+            "label": "Ver detalle",
+            "href": "#contacto"
+          }
+        },
+        {
+          "name": "Sitio completo",
+          "note": "Hasta seis páginas con todas las secciones.",
+          "highlight": true,
+          "action": {
+            "label": "Empezar por aquí",
+            "href": "#contacto"
+          }
+        },
+        {
+          "name": "Sitio y acompañamiento",
+          "note": "Con revisiones mensuales.",
+          "action": {
+            "label": "Ver detalle",
+            "href": "#contacto"
+          }
+        }
+      ],
+      "rows": [
+        {
+          "label": "Dirección de arte",
+          "values": [true, true, true]
+        },
+        {
+          "label": "Páginas",
+          "values": ["1", "Hasta 6", "Hasta 12"]
+        },
+        {
+          "label": "Crítica con capturas",
+          "values": [false, true, true]
+        },
+        {
+          "label": "Revisiones mensuales",
+          "values": [false, false, true]
+        }
+      ]
+    },
+    {
+      "type": "testimonials",
+      "id": "testimonios",
+      "eyebrow": "Testimonios",
+      "title": "Lo que dicen después de publicar",
+      "quotes": [
+        {
+          "quote": "Por primera vez nuestra web se parece a nuestra tienda y no a la de al lado.",
+          "author": "Persona de ejemplo",
+          "role": "Dirección, marca ficticia",
+          "figure": {
+            "value": "3×",
+            "label": "más consultas en el primer mes (dato de ejemplo)"
+          }
+        },
+        {
+          "quote": "Cambiamos la paleta una tarde y todo el sitio la siguió sin romper el contraste.",
+          "author": "Otra persona de ejemplo",
+          "role": "Diseño, marca ficticia",
+          "figure": {
+            "value": "0",
+            "label": "fallos de contraste tras el cambio (dato de ejemplo)"
+          }
+        }
+      ]
+    },
+    {
+      "type": "faq",
+      "id": "preguntas",
+      "eyebrow": "Preguntas",
+      "title": "Preguntas frecuentes",
+      "items": [
+        {
+          "topic": "Marca",
+          "question": "¿Qué necesitáis de mi marca para empezar?",
+          "answer": "Paleta, tipografías, logos en SVG, una dirección de imagen, la voz y una frase con vuestra decisión más memorable."
+        },
+        {
+          "topic": "Marca",
+          "question": "¿Podemos usar nuestras propias fuentes?",
+          "answer": "Sí. Se sirven desde vuestro propio dominio, sin depender de terceros."
+        },
+        {
+          "topic": "Sitio",
+          "question": "¿Quién puede editar el contenido?",
+          "answer": "El contenido vive en archivos de texto en vuestro repositorio. Si algo no cumple el esquema, el sitio no se publica y el error dice qué corregir."
+        },
+        {
+          "topic": "Sitio",
+          "question": "¿Es accesible?",
+          "answer": "Cada combinación de colores pasa WCAG AA en modo claro y oscuro, los controles se usan con teclado y el movimiento respeta la preferencia de reducirlo."
+        }
+      ]
+    },
+    {
+      "type": "contact",
+      "id": "contacto",
+      "eyebrow": "Contacto",
+      "title": "Cuéntanos qué marca quieres llevar a la web",
+      "body": "Respondemos en dos días laborables.",
+      "form": {
+        "action": "/",
+        "submitLabel": "Enviar",
+        "topics": ["Un sitio nuevo", "Rediseñar uno existente", "Otra consulta"]
+      }
+    }
+  ]
+}

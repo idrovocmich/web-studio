@@ -182,12 +182,214 @@ export const ctaSchema = z
     path: ["form"],
   });
 
+export const STORY_VARIANTS = ["scroll", "interleaved", "timeline"] as const;
+export const METHOD_VARIANTS = ["steps", "columns", "phases"] as const;
+export const GALLERY_VARIANTS = ["mosaic", "strip", "feature"] as const;
+export const COMPARISON_VARIANTS = ["table", "before-after", "plans"] as const;
+export const TESTIMONIALS_VARIANTS = ["single", "conversation", "with-figure"] as const;
+export const FAQ_VARIANTS = ["accordion", "index", "two-column"] as const;
+export const CONTACT_VARIANTS = ["form-aside", "details", "steps"] as const;
+
+const chapter = z.strictObject({
+  title: text("el título del capítulo"),
+  body: text("el texto del capítulo"),
+  date: z.string().trim().optional(),
+  media: mediaSchema.optional(),
+});
+
+export const storySchema = z
+  .strictObject({
+    type: z.literal("story"),
+    ...base(STORY_VARIANTS),
+    eyebrow: z.string().trim().optional(),
+    title: text("el título de la historia"),
+    intro: z.string().trim().optional(),
+    chapters: z.array(chapter).min(2, { error: "Una historia necesita al menos 2 capítulos." }),
+  })
+  .refine((s) => s.variant !== "timeline" || s.chapters.every((c) => c.date), {
+    error: 'La variante "timeline" necesita una fecha (date) en cada capítulo.',
+    path: ["chapters"],
+  });
+
+export const methodSchema = z.strictObject({
+  type: z.literal("method"),
+  ...base(METHOD_VARIANTS),
+  eyebrow: z.string().trim().optional(),
+  title: text("el título del método"),
+  intro: z.string().trim().optional(),
+  steps: z
+    .array(
+      z.strictObject({
+        title: text("el título del paso"),
+        body: text("la descripción del paso"),
+        duration: z.string().trim().optional(),
+      }),
+    )
+    .min(3, { error: "Un método necesita al menos 3 pasos." })
+    .max(8, { error: "Como máximo 8 pasos: si hay más, agrúpalos en fases." }),
+});
+
+export const gallerySchema = z.strictObject({
+  type: z.literal("gallery"),
+  ...base(GALLERY_VARIANTS),
+  eyebrow: z.string().trim().optional(),
+  title: z.string().trim().optional(),
+  images: z
+    .array(mediaSchema.extend({ caption: z.string().trim().optional() }))
+    .min(3, { error: "Una galería necesita al menos 3 imágenes." }),
+});
+
+const cell = z.union([z.string().trim().min(1), z.boolean()], {
+  error: "Cada celda es un texto o true/false.",
+});
+
+export const comparisonSchema = z
+  .strictObject({
+    type: z.literal("comparison"),
+    ...base(COMPARISON_VARIANTS),
+    eyebrow: z.string().trim().optional(),
+    title: text("el título de la comparación"),
+    intro: z.string().trim().optional(),
+    columns: z
+      .array(
+        z.strictObject({
+          name: text("el nombre de la columna"),
+          price: z.string().trim().optional(),
+          note: z.string().trim().optional(),
+          /** The recommended option. At most one, and it alone gets a primary action. */
+          highlight: z.boolean().default(false),
+          action: linkSchema.optional(),
+        }),
+      )
+      .min(2, { error: "Compara al menos 2 opciones." })
+      .max(4, { error: "Como máximo 4 opciones: más columnas no se leen en un móvil." }),
+    rows: z
+      .array(z.strictObject({ label: text("la etiqueta de la fila"), values: z.array(cell) }))
+      .min(1, { error: "Añade al menos una fila." }),
+  })
+  .superRefine((s, ctx) => {
+    s.rows.forEach((row, i) => {
+      if (row.values.length !== s.columns.length) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["rows", i, "values"],
+          message: `La fila "${row.label}" tiene ${row.values.length} valores y hay ${s.columns.length} columnas.`,
+        });
+      }
+    });
+    if (s.columns.filter((c) => c.highlight).length > 1) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["columns"],
+        message: "Solo una opción puede ser la recomendada (highlight).",
+      });
+    }
+    if (s.variant === "before-after" && s.columns.length !== 2) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["columns"],
+        message: 'La variante "before-after" compara exactamente 2 columnas.',
+      });
+    }
+  });
+
+export const testimonialsSchema = z
+  .strictObject({
+    type: z.literal("testimonials"),
+    ...base(TESTIMONIALS_VARIANTS),
+    eyebrow: z.string().trim().optional(),
+    title: z.string().trim().optional(),
+    quotes: z
+      .array(
+        z.strictObject({
+          quote: text("la cita", 10),
+          /** Real attribution: anonymous quotes read as invented. */
+          author: text("el autor de la cita"),
+          role: z.string().trim().optional(),
+          figure: z.strictObject({ value: text("la cifra"), label: text("qué mide") }).optional(),
+        }),
+      )
+      .min(1, { error: "Añade al menos un testimonio." }),
+  })
+  .refine((s) => s.variant !== "with-figure" || s.quotes[0]?.figure, {
+    error: 'La variante "with-figure" necesita una cifra (figure) en el primer testimonio.',
+    path: ["quotes", 0, "figure"],
+  });
+
+export const faqSchema = z
+  .strictObject({
+    type: z.literal("faq"),
+    ...base(FAQ_VARIANTS),
+    eyebrow: z.string().trim().optional(),
+    title: text("el título de las preguntas frecuentes"),
+    items: z
+      .array(
+        z.strictObject({
+          question: text("la pregunta"),
+          answer: text("la respuesta"),
+          topic: z.string().trim().optional(),
+        }),
+      )
+      .min(3, { error: "Añade al menos 3 preguntas." }),
+  })
+  .refine(
+    (s) =>
+      s.variant !== "two-column" ||
+      (s.items.every((i) => i.topic) && new Set(s.items.map((i) => i.topic)).size >= 2),
+    {
+      error:
+        'La variante "two-column" agrupa por tema: cada pregunta necesita "topic" y debe haber al menos 2 temas.',
+      path: ["items"],
+    },
+  );
+
+export const contactSchema = z.strictObject({
+  type: z.literal("contact"),
+  ...base(CONTACT_VARIANTS),
+  eyebrow: z.string().trim().optional(),
+  title: text("el título de contacto"),
+  body: z.string().trim().optional(),
+  form: z.strictObject({
+    action: href,
+    submitLabel: text("el texto del botón del formulario"),
+    /** Optional topics for a "¿Sobre qué?" select. */
+    topics: z.array(z.string().trim().min(1)).default([]),
+  }),
+});
+
+export const SECTION_TYPES = [
+  "hero",
+  "manifesto",
+  "features",
+  "proof",
+  "cta",
+  "story",
+  "method",
+  "gallery",
+  "comparison",
+  "testimonials",
+  "faq",
+  "contact",
+] as const;
+
 export const sectionSchema = z.discriminatedUnion(
   "type",
-  [heroSchema, manifestoSchema, featuresSchema, proofSchema, ctaSchema],
+  [
+    heroSchema,
+    manifestoSchema,
+    featuresSchema,
+    proofSchema,
+    ctaSchema,
+    storySchema,
+    methodSchema,
+    gallerySchema,
+    comparisonSchema,
+    testimonialsSchema,
+    faqSchema,
+    contactSchema,
+  ],
   {
-    error:
-      'Tipo de sección desconocido (type). Usa "hero", "manifesto", "features", "proof" o "cta".',
+    error: `Tipo de sección desconocido (type). Usa uno de: ${SECTION_TYPES.map((t) => `"${t}"`).join(", ")}.`,
   },
 );
 
@@ -259,6 +461,13 @@ export type ManifestoSection = z.output<typeof manifestoSchema>;
 export type FeaturesSection = z.output<typeof featuresSchema>;
 export type ProofSection = z.output<typeof proofSchema>;
 export type CtaSection = z.output<typeof ctaSchema>;
+export type StorySection = z.output<typeof storySchema>;
+export type MethodSection = z.output<typeof methodSchema>;
+export type GallerySection = z.output<typeof gallerySchema>;
+export type ComparisonSection = z.output<typeof comparisonSchema>;
+export type TestimonialsSection = z.output<typeof testimonialsSchema>;
+export type FaqSection = z.output<typeof faqSchema>;
+export type ContactSection = z.output<typeof contactSchema>;
 export type Section = z.output<typeof sectionSchema>;
 export type SectionType = Section["type"];
 export type Page = z.output<typeof pageSchema>;

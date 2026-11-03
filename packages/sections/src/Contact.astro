@@ -1,0 +1,331 @@
+---
+import type { Composition } from "@idrovocmich/brand-contract";
+import type { ContactSection, Site } from "@idrovocmich/content-schema";
+import Button from "@idrovocmich/ui/Button.astro";
+import Container from "@idrovocmich/ui/Container.astro";
+import Eyebrow from "@idrovocmich/ui/Eyebrow.astro";
+import Field from "@idrovocmich/ui/Field.astro";
+import Heading from "@idrovocmich/ui/Heading.astro";
+import Link from "@idrovocmich/ui/Link.astro";
+import Split from "@idrovocmich/ui/Split.astro";
+import Stack from "@idrovocmich/ui/Stack.astro";
+import Text from "@idrovocmich/ui/Text.astro";
+import Section from "./Section.astro";
+import { contactVariant, indexLabel } from "./variants";
+
+interface Props {
+  section: ContactSection;
+  composition: Composition;
+  /** Contact details come from the site settings. */
+  contact?: Site["contact"];
+  /** Field and link labels (the engine does not assume a language). */
+  labels?: {
+    name: string;
+    email: string;
+    message: string;
+    topic: string;
+    map: string;
+    stepAbout: string;
+    stepMessage: string;
+  };
+}
+
+const {
+  section,
+  composition,
+  contact,
+  labels = {
+    name: "Nombre",
+    email: "Correo",
+    message: "Mensaje",
+    topic: "¿Sobre qué?",
+    map: "Ver en el mapa",
+    stepAbout: "Quién eres",
+    stepMessage: "Qué necesitas",
+  },
+} = Astro.props;
+const variant = contactVariant(section, composition);
+// Field ids are prefixed so two forms on one page never share an id.
+const fid = (name: string): string => `${section.id ?? "contacto"}-${name}`;
+const { eyebrow, title, body, form } = section;
+const topicOptions = form.topics.map((t) => ({ value: t, label: t }));
+// A text link to a map instead of an embedded map: no third-party script, nothing for the CSP.
+const mapHref = contact?.address
+  ? `https://www.openstreetmap.org/search?query=${encodeURIComponent(contact.address)}`
+  : undefined;
+---
+
+<Section type="contact" {variant} id={section.id} signature={section.signature}>
+  <Container>
+    {variant === "form-aside" && (
+      <Split ratio="5-7">
+        <Stack gap="md">
+          {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+          <Heading level={2}>{title}</Heading>
+          {body && <Text tone="secondary">{body}</Text>}
+          {contact && (
+            <address class="contact-details">
+              {contact.email && <Link href={`mailto:${contact.email}`}>{contact.email}</Link>}
+              {contact.phone && (
+                <Link href={`tel:${contact.phone.replace(/\s+/g, "")}`}>{contact.phone}</Link>
+              )}
+              {contact.address && <span>{contact.address}</span>}
+            </address>
+          )}
+        </Stack>
+        <form action={form.action} method="post" class="contact-form">
+          <Field
+            label={labels.name}
+            name="nombre"
+            id={fid("nombre")}
+            autocomplete="name"
+            required
+          />
+          <Field
+            label={labels.email}
+            name="correo"
+            id={fid("correo")}
+            type="email"
+            autocomplete="email"
+            required
+          />
+          {topicOptions.length > 0 && (
+            <Field
+              label={labels.topic}
+              name="tema"
+              id={fid("tema")}
+              type="select"
+              options={topicOptions}
+            />
+          )}
+          <Field
+            label={labels.message}
+            name="mensaje"
+            id={fid("mensaje")}
+            type="textarea"
+            required
+          />
+          <div>
+            <Button type="submit">{form.submitLabel}</Button>
+          </div>
+        </form>
+      </Split>
+    )}
+
+    {variant === "details" && (
+      <Stack gap="2xl">
+        <Stack gap="md">
+          {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+          <Heading level={2} size="h1">
+            {title}
+          </Heading>
+          {body && (
+            <Text size="lead" tone="secondary">
+              {body}
+            </Text>
+          )}
+        </Stack>
+        {contact && (
+          <address class="contact-big">
+            {contact.email && <a href={`mailto:${contact.email}`}>{contact.email}</a>}
+            {contact.phone && (
+              <a href={`tel:${contact.phone.replace(/\s+/g, "")}`}>{contact.phone}</a>
+            )}
+            {contact.address && (
+              <span class="contact-address">
+                {contact.address}
+                {mapHref && (
+                  <Link href={mapHref} external>
+                    {labels.map}
+                  </Link>
+                )}
+              </span>
+            )}
+          </address>
+        )}
+        <form action={form.action} method="post" class="contact-form contact-form-inline">
+          <Field
+            label={labels.name}
+            name="nombre"
+            id={fid("nombre")}
+            autocomplete="name"
+            required
+          />
+          <Field
+            label={labels.email}
+            name="correo"
+            id={fid("correo")}
+            type="email"
+            autocomplete="email"
+            required
+          />
+          <div class="contact-form-wide">
+            <Field
+              label={labels.message}
+              name="mensaje"
+              id={fid("mensaje")}
+              type="textarea"
+              rows={3}
+              required
+            />
+          </div>
+          <div>
+            <Button type="submit">{form.submitLabel}</Button>
+          </div>
+        </form>
+      </Stack>
+    )}
+
+    {variant === "steps" && (
+      <Split ratio="5-7">
+        <Stack gap="sm">
+          {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+          <Heading level={2}>{title}</Heading>
+          {body && <Text tone="secondary">{body}</Text>}
+          {contact?.email && <Link href={`mailto:${contact.email}`}>{contact.email}</Link>}
+        </Stack>
+        <form action={form.action} method="post" class="contact-steps">
+          <fieldset>
+            <legend>
+              <span class="contact-step" aria-hidden="true">
+                {indexLabel(0)}
+              </span>
+              {labels.stepAbout}
+            </legend>
+            <Field
+              label={labels.name}
+              name="nombre"
+              id={fid("nombre")}
+              autocomplete="name"
+              required
+            />
+            <Field
+              label={labels.email}
+              name="correo"
+              id={fid("correo")}
+              type="email"
+              autocomplete="email"
+              required
+            />
+          </fieldset>
+          <fieldset>
+            <legend>
+              <span class="contact-step" aria-hidden="true">
+                {indexLabel(1)}
+              </span>
+              {labels.stepMessage}
+            </legend>
+            {topicOptions.length > 0 && (
+              <Field
+                label={labels.topic}
+                name="tema"
+                id={fid("tema")}
+                type="select"
+                options={topicOptions}
+              />
+            )}
+            <Field
+              label={labels.message}
+              name="mensaje"
+              id={fid("mensaje")}
+              type="textarea"
+              required
+            />
+          </fieldset>
+          <div>
+            <Button type="submit">{form.submitLabel}</Button>
+          </div>
+        </form>
+      </Split>
+    )}
+  </Container>
+</Section>
+
+<style>
+  .contact-form {
+    display: grid;
+    gap: var(--ws-flow-gap-md);
+    width: 100%;
+  }
+  .contact-details {
+    display: grid;
+    gap: var(--ws-flow-gap-2xs);
+    font-style: normal;
+  }
+
+  /* Details: the contact data is the headline; the form is a short line below. */
+  .contact-big {
+    display: grid;
+    gap: var(--ws-flow-gap-sm);
+    font-style: normal;
+  }
+  .contact-big > a,
+  .contact-address {
+    color: var(--ws-heading-color);
+    font-family: var(--ws-heading-font-family);
+    font-size: min(var(--ws-heading-size-h2), 8cqi);
+    line-height: var(--ws-heading-leading);
+    overflow-wrap: anywhere;
+  }
+  .contact-big > a {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.15em;
+  }
+  .contact-big > a:focus-visible {
+    outline: var(--ws-link-focus);
+    outline-offset: 4px;
+  }
+  .contact-address {
+    display: grid;
+    gap: var(--ws-flow-gap-2xs);
+  }
+  .contact-address :global(.ws-link) {
+    font-family: var(--ws-text-font-family);
+    font-size: var(--ws-text-size-body);
+  }
+  @media (width >= 48rem) {
+    .contact-form-inline {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: end;
+    }
+    .contact-form-wide {
+      grid-column: 1 / -1;
+    }
+  }
+
+  /* Steps: two numbered fieldsets on one page; no JavaScript, nothing hidden. */
+  .contact-steps {
+    display: grid;
+    gap: var(--ws-flow-gap-xl);
+    width: 100%;
+  }
+  fieldset {
+    display: grid;
+    gap: var(--ws-flow-gap-md);
+    margin: 0;
+    padding: var(--ws-flow-gap-md) 0 0;
+    border: 0;
+    border-top: var(--ws-section-rule-strong);
+  }
+  /* Floated so the legend sits inside the fieldset, under its rule, not on top of it. */
+  legend {
+    float: left;
+    width: 100%;
+    display: flex;
+    gap: var(--ws-flow-gap-sm);
+    padding: 0 0 var(--ws-flow-gap-sm);
+    font-family: var(--ws-heading-font-family);
+    font-size: var(--ws-heading-size-h4);
+    font-weight: var(--ws-heading-font-weight);
+  }
+  legend + :global(*) {
+    clear: both;
+  }
+  .contact-step {
+    color: var(--ws-section-index-color);
+    font-family: var(--ws-eyebrow-font-mono);
+    font-size: var(--ws-text-size-small);
+    font-weight: 400;
+  }
+</style>

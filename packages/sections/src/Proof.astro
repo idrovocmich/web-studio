@@ -1,0 +1,151 @@
+---
+import type { Composition } from "@idrovocmich/brand-contract";
+import type { ProofSection } from "@idrovocmich/content-schema";
+import Reveal from "@idrovocmich/motion/Reveal.astro";
+import Container from "@idrovocmich/ui/Container.astro";
+import Eyebrow from "@idrovocmich/ui/Eyebrow.astro";
+import Heading from "@idrovocmich/ui/Heading.astro";
+import Link from "@idrovocmich/ui/Link.astro";
+import Split from "@idrovocmich/ui/Split.astro";
+import Stack from "@idrovocmich/ui/Stack.astro";
+import Text from "@idrovocmich/ui/Text.astro";
+import Section from "./Section.astro";
+import { proofVariant } from "./variants";
+
+interface Props {
+  section: ProofSection;
+  composition: Composition;
+}
+
+const { section, composition } = Astro.props;
+const variant = proofVariant(section, composition);
+const { eyebrow, title, figures, cases, logos, logosContext } = section;
+---
+
+<Section type="proof" {variant} id={section.id} signature={section.signature}>
+  <Container>
+    <Stack gap="xl">
+      {(eyebrow ?? title) && (
+        <Stack gap="sm">
+          {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+          {title && <Heading level={2}>{title}</Heading>}
+        </Stack>
+      )}
+
+      {variant === "figures" && (
+        <Reveal mode="stagger" as="ul" class="proof-figures">
+          {figures.map((f) => (
+            <li>
+              <span class="proof-value">{f.value}</span>
+              <Text size="small">{f.label}</Text>
+              {f.source && (
+                <Text size="caption" tone="muted">
+                  Fuente: {f.source}
+                </Text>
+              )}
+            </li>
+          ))}
+        </Reveal>
+      )}
+
+      {variant === "cases" && (
+        <div class="proof-cases">
+          {cases.map((c) => (
+            <article>
+              <Split ratio="7-5" align="end">
+                <Stack gap="sm">
+                  <Heading level={3} size="h3">
+                    {c.title}
+                  </Heading>
+                  <Text tone="secondary">{c.summary}</Text>
+                  {c.href && <Link href={c.href}>Leer el caso: {c.title}</Link>}
+                </Stack>
+                <p class="proof-result">{c.result}</p>
+              </Split>
+            </article>
+          ))}
+        </div>
+      )}
+
+      {variant === "logos" && (
+        <Split ratio="5-7">
+          {logosContext && <Text size="lead">{logosContext}</Text>}
+          <ul class="proof-logos">
+            {logos.map((l) => (
+              <li>{l.src ? <img src={l.src} alt={l.name} /> : <span>{l.name}</span>}</li>
+            ))}
+          </ul>
+        </Split>
+      )}
+    </Stack>
+  </Container>
+</Section>
+
+<style>
+  :global(.proof-figures) {
+    display: grid;
+    gap: var(--ws-flow-gap-xl) var(--ws-flow-gutter-wide);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  @media (width >= 48rem) {
+    :global(.proof-figures) {
+      grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    }
+  }
+  :global(.proof-figures) > li {
+    display: grid;
+    align-content: start;
+    gap: var(--ws-flow-gap-2xs);
+    padding-top: var(--ws-flow-gap-sm);
+    border-top: var(--ws-section-rule-strong);
+  }
+  .proof-value {
+    font-family: var(--ws-heading-font-family);
+    font-size: min(var(--ws-heading-size-display), 22cqi);
+    font-weight: var(--ws-heading-font-weight);
+    line-height: 1;
+    letter-spacing: var(--ws-heading-tracking);
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+  :global(:root[data-ws-eyebrow="mono-caps"]) .proof-value {
+    font-family: var(--ws-eyebrow-font-mono);
+  }
+  :global(:root[data-ws-heading-scale="monumental"]) .proof-value {
+    font-size: min(calc(var(--ws-heading-size-display) * 1.3), 26cqi);
+  }
+
+  .proof-cases > article {
+    padding-block: var(--ws-flow-gap-lg);
+    border-top: var(--ws-section-rule);
+  }
+  .proof-result {
+    margin: 0;
+    font-family: var(--ws-heading-font-family);
+    font-size: var(--ws-heading-size-h3);
+    line-height: var(--ws-heading-leading);
+  }
+
+  .proof-logos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: var(--ws-section-rule);
+  }
+  .proof-logos li {
+    display: flex;
+    align-items: center;
+    min-height: 5rem;
+    padding: var(--ws-flow-gap-sm);
+    border-bottom: var(--ws-section-rule);
+    font-family: var(--ws-heading-font-family);
+    font-size: var(--ws-text-size-lead);
+  }
+  .proof-logos img {
+    max-width: 100%;
+    max-height: 2.5rem;
+  }
+</style>

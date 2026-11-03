@@ -1,0 +1,162 @@
+---
+import type { Composition } from "@idrovocmich/brand-contract";
+import type { HeroSection } from "@idrovocmich/content-schema";
+import Bleed from "@idrovocmich/ui/Bleed.astro";
+import Button from "@idrovocmich/ui/Button.astro";
+import Cluster from "@idrovocmich/ui/Cluster.astro";
+import Container from "@idrovocmich/ui/Container.astro";
+import Eyebrow from "@idrovocmich/ui/Eyebrow.astro";
+import Figure from "@idrovocmich/ui/Figure.astro";
+import Heading from "@idrovocmich/ui/Heading.astro";
+import Split from "@idrovocmich/ui/Split.astro";
+import Stack from "@idrovocmich/ui/Stack.astro";
+import Text from "@idrovocmich/ui/Text.astro";
+import Section from "./Section.astro";
+import { heroVariant } from "./variants";
+
+interface Props {
+  section: HeroSection;
+  composition: Composition;
+}
+
+const { section, composition } = Astro.props;
+const variant = heroVariant(section, composition);
+const { eyebrow, title, lead, action, secondary, media } = section;
+const hasActions = Boolean(action ?? secondary);
+---
+
+<Section type="hero" {variant} id={section.id} signature={section.signature}>
+  {variant === "editorial" && (
+    <Container>
+      <div class="hero-editorial">
+        {eyebrow && <Eyebrow class="hero-editorial-eyebrow">{eyebrow}</Eyebrow>}
+        <Heading level={1} size="display" align="start" class="hero-editorial-title">
+          {title}
+        </Heading>
+        <Stack gap="md" class="hero-editorial-copy">
+          {lead && <Text size="lead">{lead}</Text>}
+          {hasActions && (
+            <Cluster gap="md">
+              {action && <Button href={action.href}>{action.label}</Button>}
+              {secondary && (
+                <Button href={secondary.href} variant="quiet">
+                  {secondary.label}
+                </Button>
+              )}
+            </Cluster>
+          )}
+        </Stack>
+        {media && (
+          <Figure class="hero-editorial-media" ratio="3/4" placeholder={media.alt}>
+            {media.src && <img src={media.src} alt={media.alt} />}
+          </Figure>
+        )}
+      </div>
+    </Container>
+  )}
+
+  {variant === "typographic" && (
+    <Container>
+      <Stack gap="xl">
+        {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+        <Heading level={1} size="display" class="hero-typographic-title">
+          {title}
+        </Heading>
+        <div class="hero-typographic-foot">
+          {lead && <Text size="lead">{lead}</Text>}
+          {hasActions && (
+            <Cluster gap="md">
+              {action && <Button href={action.href}>{action.label}</Button>}
+              {secondary && (
+                <Button href={secondary.href} variant="quiet">
+                  {secondary.label}
+                </Button>
+              )}
+            </Cluster>
+          )}
+        </div>
+      </Stack>
+    </Container>
+  )}
+
+  {variant === "split-media" && (
+    <Container>
+      <Split align="end">
+        <Stack gap="lg">
+          {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+          <Heading level={1} size="display">
+            {title}
+          </Heading>
+          {lead && (
+            <Text size="lead" tone="secondary">
+              {lead}
+            </Text>
+          )}
+          {hasActions && (
+            <Cluster gap="md">
+              {action && <Button href={action.href}>{action.label}</Button>}
+              {secondary && (
+                <Button href={secondary.href} variant="quiet">
+                  {secondary.label}
+                </Button>
+              )}
+            </Cluster>
+          )}
+        </Stack>
+        {media && (
+          <Bleed side="end">
+            <Figure ratio="4/5" placeholder={media.alt}>
+              {media.src && <img src={media.src} alt={media.alt} />}
+            </Figure>
+          </Bleed>
+        )}
+      </Split>
+    </Container>
+  )}
+</Section>
+
+<style>
+  /* Editorial: an asymmetric page spread on 12 columns. */
+  .hero-editorial {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--ws-flow-gap-lg);
+  }
+  @media (width >= 48rem) {
+    .hero-editorial {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--ws-flow-gutter-wide);
+      row-gap: var(--ws-flow-gap-xl);
+    }
+    .hero-editorial :global(.hero-editorial-eyebrow) {
+      grid-column: 1 / span 3;
+    }
+    .hero-editorial :global(.hero-editorial-title) {
+      grid-column: 2 / span 10;
+    }
+    .hero-editorial :global(.hero-editorial-media) {
+      grid-column: 1 / span 4;
+      grid-row: 3;
+    }
+    .hero-editorial :global(.hero-editorial-copy) {
+      grid-column: 7 / span 6;
+      grid-row: 3;
+      align-self: end;
+    }
+  }
+
+  /* Typographic: the headline is the image; copy sits in a narrow column on the right. */
+  .hero-typographic-foot {
+    display: grid;
+    gap: var(--ws-flow-gap-md);
+  }
+  @media (width >= 48rem) {
+    .hero-typographic-foot {
+      width: min(100%, 36rem);
+      margin-inline-start: auto;
+    }
+  }
+  :global(.hero-typographic-title) {
+    max-width: none;
+  }
+</style>

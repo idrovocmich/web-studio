@@ -1,0 +1,193 @@
+---
+import type { Composition } from "@idrovocmich/brand-contract";
+import type { FeaturesSection } from "@idrovocmich/content-schema";
+import Reveal from "@idrovocmich/motion/Reveal.astro";
+import Card from "@idrovocmich/ui/Card.astro";
+import Container from "@idrovocmich/ui/Container.astro";
+import Eyebrow from "@idrovocmich/ui/Eyebrow.astro";
+import Figure from "@idrovocmich/ui/Figure.astro";
+import Grid from "@idrovocmich/ui/Grid.astro";
+import Heading from "@idrovocmich/ui/Heading.astro";
+import Split from "@idrovocmich/ui/Split.astro";
+import Stack from "@idrovocmich/ui/Stack.astro";
+import Text from "@idrovocmich/ui/Text.astro";
+import Section from "./Section.astro";
+import { featuresVariant, indexLabel } from "./variants";
+
+interface Props {
+  section: FeaturesSection;
+  composition: Composition;
+}
+
+const { section, composition } = Astro.props;
+const variant = featuresVariant(section, composition);
+const { eyebrow, title, intro, items } = section;
+const [lead, ...rest] = items;
+const anchor = (i: number): string => `${section.id ?? "rasgos"}-${i + 1}`;
+---
+
+<Section type="features" {variant} id={section.id} signature={section.signature}>
+  <Container>
+    <Stack gap="xl">
+      <Stack gap="sm">
+        {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+        <Heading level={2}>{title}</Heading>
+        {intro && <Text tone="secondary">{intro}</Text>}
+      </Stack>
+
+      {variant === "bento" && (
+        <Reveal mode="stagger">
+          <Grid pattern="bento">
+            {items.map((item, i) => (
+              <Card>
+                {item.media && i === 0 && (
+                  <Figure ratio="16/9" placeholder={item.media.alt}>
+                    {item.media.src && <img src={item.media.src} alt={item.media.alt} />}
+                  </Figure>
+                )}
+                <Heading level={3} size={i === 0 ? "h3" : "h4"}>
+                  {item.title}
+                </Heading>
+                <Text tone="secondary">{item.body}</Text>
+              </Card>
+            ))}
+          </Grid>
+        </Reveal>
+      )}
+
+      {variant === "index" && (
+        <Split ratio="4-8" class="features-index">
+          <nav aria-label={title}>
+            <ol class="features-index-list">
+              {items.map((item, i) => (
+                <li>
+                  <a href={`#${anchor(i)}`}>
+                    <span class="features-number" aria-hidden="true">
+                      {indexLabel(i)}
+                    </span>
+                    {item.title}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </nav>
+          <div class="features-index-detail">
+            {items.map((item, i) => (
+              <article id={anchor(i)}>
+                <span class="features-number" aria-hidden="true">
+                  {indexLabel(i)}
+                </span>
+                <Stack gap="sm">
+                  <Heading level={3} size="h3">
+                    {item.title}
+                  </Heading>
+                  <Text tone="secondary">{item.body}</Text>
+                  {item.media && (
+                    <Figure ratio="16/9" placeholder={item.media.alt}>
+                      {item.media.src && <img src={item.media.src} alt={item.media.alt} />}
+                    </Figure>
+                  )}
+                </Stack>
+              </article>
+            ))}
+          </div>
+        </Split>
+      )}
+
+      {variant === "lead-list" && lead && (
+        <Stack gap="2xl">
+          <Split>
+            <Stack gap="md">
+              <Heading level={3} size="h2">
+                {lead.title}
+              </Heading>
+              <Text size="lead" tone="secondary">
+                {lead.body}
+              </Text>
+            </Stack>
+            <Figure ratio="4/3" placeholder={lead.media?.alt ?? lead.title}>
+              {lead.media?.src && <img src={lead.media.src} alt={lead.media.alt} />}
+            </Figure>
+          </Split>
+          <Reveal mode="stagger" as="ul" class="features-list">
+            {rest.map((item) => (
+              <li>
+                <Heading level={3} size="h4">
+                  {item.title}
+                </Heading>
+                <Text tone="secondary">{item.body}</Text>
+              </li>
+            ))}
+          </Reveal>
+        </Stack>
+      )}
+    </Stack>
+  </Container>
+</Section>
+
+<style>
+  .features-number {
+    color: var(--ws-section-index-color);
+    font-family: var(--ws-eyebrow-font-mono);
+    font-size: var(--ws-text-size-small);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Index: a sticky table of contents next to the detail. */
+  .features-index-list {
+    position: sticky;
+    top: var(--ws-flow-gap-lg);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: var(--ws-section-rule-strong);
+  }
+  .features-index-list a {
+    display: flex;
+    gap: var(--ws-flow-gap-sm);
+    padding-block: var(--ws-flow-gap-xs);
+    border-bottom: var(--ws-section-rule);
+    color: inherit;
+    text-decoration: none;
+  }
+  .features-index-list a:hover,
+  .features-index-list a:focus-visible {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  .features-index-detail {
+    display: grid;
+  }
+  .features-index-detail article {
+    display: grid;
+    grid-template-columns: 4ch minmax(0, 1fr);
+    gap: var(--ws-flow-gap-md);
+    padding-block: var(--ws-flow-gap-lg);
+    border-top: var(--ws-section-rule);
+    scroll-margin-top: var(--ws-flow-gap-lg);
+  }
+  .features-index-detail article:first-child {
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  /* Lead list: one highlighted feature, the rest as a two-column list with rules. */
+  :global(.features-list) {
+    display: grid;
+    gap: 0 var(--ws-flow-gutter-wide);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  :global(.features-list) > li {
+    display: grid;
+    gap: var(--ws-flow-gap-xs);
+    padding-block: var(--ws-flow-gap-md);
+    border-top: var(--ws-section-rule);
+  }
+  @media (width >= 48rem) {
+    :global(.features-list) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

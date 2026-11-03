@@ -1,0 +1,32 @@
+---
+import type { Composition } from "@idrovocmich/brand-contract";
+import type { Section } from "@idrovocmich/content-schema";
+import Cta from "./Cta.astro";
+import Features from "./Features.astro";
+import Hero from "./Hero.astro";
+import Manifesto from "./Manifesto.astro";
+import Proof from "./Proof.astro";
+
+interface Props {
+  sections: Section[];
+  composition: Composition;
+}
+
+// Renders a page's sections in order, each choosing its composition from the brand.
+const { sections, composition } = Astro.props;
+---
+
+{sections.map((section) => {
+  switch (section.type) {
+    case "hero":
+      return <Hero {section} {composition} />;
+    case "manifesto":
+      return <Manifesto {section} {composition} />;
+    case "features":
+      return <Features {section} {composition} />;
+    case "proof":
+      return <Proof {section} {composition} />;
+    case "cta":
+      return <Cta {section} {composition} />;
+  }
+})}

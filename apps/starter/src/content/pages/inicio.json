@@ -1,0 +1,112 @@
+{
+  "slug": "",
+  "title": "Inicio",
+  "description": "Página de demostración: el mismo contenido toma una estructura distinta según la dirección de arte de cada marca.",
+  "sections": [
+    {
+      "type": "hero",
+      "signature": true,
+      "eyebrow": "Sitios con dirección de arte",
+      "title": "El mismo texto, otra arquitectura",
+      "lead": "Cada marca define su densidad, su contraste, sus formas, su voz tipográfica y su movimiento. Las secciones eligen su composición a partir de eso.",
+      "action": {
+        "label": "Ver la dirección de arte",
+        "href": "/direccion"
+      },
+      "secondary": {
+        "label": "Especímenes",
+        "href": "/specimens"
+      },
+      "media": {
+        "alt": "Fotografía principal de la marca"
+      }
+    },
+    {
+      "type": "manifesto",
+      "eyebrow": "Principios",
+      "statement": "Una página memorable hace una sola cosa con audacia y el resto con oficio.",
+      "body": [
+        "El motor no decide cómo se ve una marca: traduce su dirección de arte en estructura. Una marca densa y técnica pide índices y cifras; una cálida y aireada pide imágenes y pausas.",
+        "Por eso el contenido no elige la composición. La elige la marca, y el contenido solo marca cuál es su sección firma."
+      ],
+      "principles": [
+        "Contraste AA en todas las combinaciones, sin excepciones.",
+        "Una acción principal por sección, nunca dos botones compitiendo.",
+        "Ninguna rejilla de tarjetas idénticas.",
+        "Movimiento solo cuando aporta, y nunca con movimiento reducido."
+      ]
+    },
+    {
+      "type": "features",
+      "id": "rasgos",
+      "eyebrow": "Qué cambia",
+      "title": "Cinco decisiones que la marca toma por ti",
+      "intro": "Cada una se traduce en tokens y en composición, no solo en color.",
+      "items": [
+        {
+          "title": "Densidad",
+          "body": "Decide el ritmo entre secciones, el ancho del contenedor y cuántas columnas caben.",
+          "media": {
+            "alt": "Detalle de la densidad de la marca"
+          }
+        },
+        {
+          "title": "Contraste",
+          "body": "Separa más o menos los tamaños, las líneas y las superficies."
+        },
+        {
+          "title": "Formas",
+          "body": "Recto, redondeado u orgánico: radios, recortes de imagen y separadores."
+        },
+        {
+          "title": "Personalidad tipográfica",
+          "body": "Interlineado, tracking, ancho de lectura y estilo de los antetítulos."
+        },
+        {
+          "title": "Movimiento",
+          "body": "Distancia y escalonado de las entradas, siempre opcional para quien lo desactiva."
+        }
+      ]
+    },
+    {
+      "type": "proof",
+      "eyebrow": "En cifras",
+      "title": "Lo que el motor garantiza",
+      "figures": [
+        {
+          "value": "34",
+          "label": "pares de contraste AA verificados por marca, en modo claro y oscuro"
+        },
+        {
+          "value": "48",
+          "label": "combinaciones de dirección de arte probadas en cada cambio"
+        },
+        {
+          "value": "0",
+          "label": "tokens de npm guardados: se publica con OIDC"
+        }
+      ],
+      "cases": [
+        {
+          "title": "Dos marcas, un solo contenido",
+          "summary": "Casa Terracota y Voltio Labs comparten esta misma página palabra por palabra.",
+          "result": "Estructuras distintas sin tocar una línea de código",
+          "href": "/direccion"
+        }
+      ]
+    },
+    {
+      "type": "cta",
+      "title": "¿Lo probamos con tu marca?",
+      "body": "Necesitamos tu paleta, tus tipografías, tus logos y una frase que defina tu decisión más memorable.",
+      "action": {
+        "label": "Escríbenos",
+        "href": "mailto:hola@example.com"
+      },
+      "form": {
+        "action": "/",
+        "submitLabel": "Quiero empezar"
+      }
+    }
+  ]
+}

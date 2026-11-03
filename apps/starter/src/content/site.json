@@ -1,0 +1,30 @@
+{
+  "name": "Sitio de demostración",
+  "locale": "es",
+  "nav": [
+    {
+      "label": "Inicio",
+      "href": "/"
+    },
+    {
+      "label": "Dirección",
+      "href": "/direccion"
+    },
+    {
+      "label": "Especímenes",
+      "href": "/specimens"
+    }
+  ],
+  "footer": {
+    "note": "Construido con web-studio. Contenido de demostración, igual para todas las marcas.",
+    "links": [
+      {
+        "label": "Código en GitHub",
+        "href": "https://github.com/idrovocmich/web-studio"
+      }
+    ]
+  },
+  "contact": {
+    "email": "hola@example.com"
+  }
+}

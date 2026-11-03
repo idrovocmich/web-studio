@@ -46,6 +46,11 @@ override one in writing, with a reason):
 Boldness is concentrated in one memorable decision per page, taken from
 `direction.signature`; everything else supports it.
 
+Pages are content (`@idrovocmich/content-schema`) rendered by sections
+(`@idrovocmich/sections`). Sections default to `variant: "auto"`, chosen from the brand's
+composition; mark exactly one section per page with `signature: true`. See
+`packages/sections/README.md` for the variants and how the rules are enforced.
+
 ## Versioning and publishing
 
 - Only `@idrovocmich/tokens` and `@idrovocmich/brand-contract` are published.

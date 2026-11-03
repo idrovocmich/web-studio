@@ -44,6 +44,16 @@ La marca "mi-marca" no cumple el contrato (2 problemas):
   • logos.variants: Falta una variante del logo para fondos oscuros (background "dark" o "any").
 ```
 
+## Provenance
+
+Releases are published from GitHub Actions with npm trusted publishing, so every version
+carries a signed provenance statement linking it to the commit and workflow that built it.
+Check the packages you installed with:
+
+```bash
+npm audit signatures
+```
+
 ## License
 
 MIT

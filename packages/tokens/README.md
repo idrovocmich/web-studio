@@ -67,6 +67,16 @@ Foreground tokens declare the backgrounds they must be legible against in
 `$extensions["com.idrovocmich.ws"].contrast`. Every pair is measured in both modes against
 WCAG 2 AA: 4.5:1 for text, 3:1 for large text and UI elements.
 
+## Provenance
+
+Releases are published from GitHub Actions with npm trusted publishing, so every version
+carries a signed provenance statement linking it to the commit and workflow that built it.
+Check the packages you installed with:
+
+```bash
+npm audit signatures
+```
+
 ## License
 
 MIT

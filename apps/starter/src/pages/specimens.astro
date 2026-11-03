@@ -2,6 +2,7 @@
 import Base from "../layouts/Base.astro";
 import {
   brand,
+  composition,
   contrast,
   dark,
   light,
@@ -17,7 +18,15 @@ const semanticColors = tokensUnder("semantic", "color");
 const ramps = Object.entries(
   Object.groupBy(tokensUnder("primitive", "color"), (t) => t.path[2] ?? "otros"),
 );
+const directionLabels = [
+  ["Densidad", brand.direction.density],
+  ["Contraste", brand.direction.contrast],
+  ["Formas", brand.direction.shape],
+  ["Personalidad tipográfica", brand.direction.typePersonality],
+  ["Movimiento", brand.direction.motion],
+] as const;
 const sections = [
+  ["Dirección de arte", "#direccion"],
   ["Colores", "#colores"],
   ["Contraste", "#contraste"],
   ["Tipografía", "#tipografia"],
@@ -56,6 +65,30 @@ const failing = contrast.filter((r) => !r.pass).length;
         ))}
       </nav>
     </header>
+
+    <section id="direccion" class="flex flex-col gap-md">
+      <h2 class="text-h2">Dirección de arte</h2>
+      <p class="max-w-prose text-lead">{brand.direction.signature}</p>
+      <dl class="grid gap-sm sm:grid-cols-2 lg:grid-cols-5">
+        {directionLabels.map(([name, value]) => (
+          <div class="flex flex-col gap-3xs border-t border-line-strong pt-xs">
+            <dt class="text-caption text-content-muted">{name}</dt>
+            <dd class="font-mono text-small">{value}</dd>
+          </div>
+        ))}
+      </dl>
+      <h3 class="text-h4">Decisiones de composición</h3>
+      <dl class="grid gap-x-md gap-y-xs text-small sm:grid-cols-2 lg:grid-cols-3">
+        {Object.entries(composition)
+          .filter(([key]) => key !== "signature")
+          .map(([key, value]) => (
+            <div class="flex justify-between gap-sm border-b border-line-subtle py-3xs">
+              <dt class="text-content-muted">{key}</dt>
+              <dd class="font-mono">{Array.isArray(value) ? value.join(" / ") : String(value)}</dd>
+            </div>
+          ))}
+      </dl>
+    </section>
 
     <section id="colores" class="flex flex-col gap-lg">
       <h2 class="text-h2">Colores semánticos</h2>

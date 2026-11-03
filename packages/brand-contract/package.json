@@ -1,6 +1,6 @@
 {
   "name": "@idrovocmich/brand-contract",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Zod contract every brand must satisfy (palette, typography, logos, imagery, voice, never-do rules) and the function that turns a valid brand into its final design tokens.",
   "license": "MIT",
   "author": "idrovocmich",

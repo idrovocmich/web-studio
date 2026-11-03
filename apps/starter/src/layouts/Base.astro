@@ -1,6 +1,6 @@
 ---
 import "../styles/global.css";
-import { brand, googleFontsHref, logoSrc } from "../lib/brand";
+import { attributes, brand, googleFontsHref, logoSrc } from "../lib/brand";
 
 interface Props {
   title: string;
@@ -11,7 +11,14 @@ const fontsHref = googleFontsHref();
 const darkLogo = brand.logos.variants.find((v) => v.background !== "light");
 ---
 
-<html lang="es">
+<html
+  lang="es"
+  data-ws-density={attributes["data-ws-density"]}
+  data-ws-contrast={attributes["data-ws-contrast"]}
+  data-ws-shape={attributes["data-ws-shape"]}
+  data-ws-type={attributes["data-ws-type"]}
+  data-ws-motion={attributes["data-ws-motion"]}
+>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />

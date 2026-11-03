@@ -26,6 +26,25 @@ Client brands live in separate private repositories; this repo is structure only
   (`$extensions["com.idrovocmich.ws"].contrast`). Never lower a minimum to make a brand pass.
 - Brand fixtures in `packages/brand-contract/fixtures/` must be clearly fictional.
 - Contract error messages are written in Spanish.
+- Every brand defines its art direction (`direction`: density, contrast, shape, type
+  personality, motion and a one-sentence signature). Sections must change their composition
+  from `resolveComposition()`, not only their colors: two brands with the same content must
+  look structurally different.
+
+## Anti-generic rules
+
+Forbidden by default in the engine, the starter and every brand site (a brand may only
+override one in writing, with a reason):
+
+- A centered hero with two buttons.
+- A grid of three identical cards.
+- Generic purple or blue gradients.
+- Filler icons (an icon must carry meaning the text does not).
+- Inter, Roboto or Arial as the main font (`brand-contract` rejects them without
+  `typography.genericFontReason`).
+
+Boldness is concentrated in one memorable decision per page, taken from
+`direction.signature`; everything else supports it.
 
 ## Versioning and publishing
 

@@ -1,13 +1,27 @@
-import { generateRamp, oklch, RAMP_STEPS, type OklchInput } from "./color.js";
+import {
+  contrastRatio,
+  generateRamp,
+  oklch,
+  RAMP_STEPS,
+  type OklchInput,
+  type RampStep,
+} from "./color.js";
+import {
+  directionPrimitives,
+  LINES_BY_CONTRAST,
+  MOTION,
+  RADIUS_BY_SHAPE,
+  RATIO_BY_CONTRAST,
+  resolveDirectionOptions,
+  type DirectionOptions,
+  type Elevation,
+  type ResolvedDirection,
+} from "./direction.js";
 import { mergeGroups } from "./tree.js";
-import type { Dimension, ShadowValue, Token, TokenGroup, TokenTree } from "./types.js";
+import type { Dimension, OklchColor, ShadowValue, Token, TokenGroup, TokenTree } from "./types.js";
 import componentTokens from "./tokens/component.tokens.json" with { type: "json" };
 import primitiveTokens from "./tokens/primitive.tokens.json" with { type: "json" };
 import semanticTokens from "./tokens/semantic.tokens.json" with { type: "json" };
-
-export type Shape = "sharp" | "soft" | "round";
-export type MotionPersonality = "calm" | "balanced" | "snappy";
-export type Elevation = "flat" | "soft" | "dramatic";
 
 export interface PaletteOptions {
   /** Neutral ramp: only chroma and hue are used, lightness is fixed per step. */
@@ -36,9 +50,10 @@ export interface EngineOptions {
   palette?: PaletteOptions;
   fonts?: { display?: string[]; body?: string[]; mono?: string[] };
   typeScale?: TypeScaleOptions;
-  shape?: Shape;
-  motion?: MotionPersonality;
-  elevation?: Elevation;
+  /** Art direction: density, contrast, shape language, type personality and motion intensity. */
+  direction?: DirectionOptions;
+  /** Weights the brand actually ships for its display font; the heading weight snaps to them. */
+  displayWeights?: number[];
 }
 
 export const DEFAULT_PALETTE = {
@@ -68,14 +83,7 @@ const TYPE_STEPS = {
   "5xl": 6,
 };
 
-const RADIUS: Record<Shape, Record<string, number>> = {
-  sharp: { none: 0, xs: 0, sm: 0.125, md: 0.125, lg: 0.25, xl: 0.25 },
-  soft: { none: 0, xs: 0.125, sm: 0.25, md: 0.5, lg: 0.75, xl: 1 },
-  round: { none: 0, xs: 0.25, sm: 0.5, md: 0.875, lg: 1.25, xl: 2 },
-};
-
 const DURATION_MS = { instant: 0, fast: 120, base: 200, slow: 320, slower: 500 };
-const MOTION_FACTOR: Record<MotionPersonality, number> = { calm: 1.5, balanced: 1, snappy: 0.7 };
 
 /** [offsetY px, blur px, spread px, alpha] per shadow size. */
 const SHADOWS: Record<Elevation, Record<"sm" | "md" | "lg", [number, number, number, number]>> = {
@@ -99,21 +107,19 @@ function rampGroup(input: OklchInput, anchor: boolean): TokenGroup {
   return group;
 }
 
-function generatedPrimitives(options: EngineOptions): TokenGroup {
+function generatedPrimitives(options: EngineOptions, direction: ResolvedDirection): TokenGroup {
   const palette = { ...DEFAULT_PALETTE, ...options.palette };
   const neutral = palette.neutral;
   const fonts = { ...SYSTEM_FONTS, ...options.fonts };
   const scale = {
     baseMin: 1,
     baseMax: 1.125,
-    ratioMin: 1.2,
-    ratioMax: 1.25,
+    ...RATIO_BY_CONTRAST[direction.contrast],
     viewport: { min: 20, max: 80 },
     ...options.typeScale,
   };
-  const shape = options.shape ?? "soft";
-  const factor = MOTION_FACTOR[options.motion ?? "balanced"];
-  const elevation = SHADOWS[options.elevation ?? "soft"];
+  const factor = MOTION[direction.motion].durationFactor;
+  const elevation = SHADOWS[direction.elevation];
 
   const fontSize: TokenGroup = {};
   for (const [name, step] of Object.entries(TYPE_STEPS)) {
@@ -129,7 +135,7 @@ function generatedPrimitives(options: EngineOptions): TokenGroup {
   }
 
   const radius: TokenGroup = {};
-  for (const [name, value] of Object.entries(RADIUS[shape])) {
+  for (const [name, value] of Object.entries(RADIUS_BY_SHAPE[direction.shape])) {
     radius[name] = { $type: "dimension", $value: rem(value) };
   }
   radius["full"] = { $type: "dimension", $value: px(9999) };
@@ -177,11 +183,96 @@ function generatedPrimitives(options: EngineOptions): TokenGroup {
 // JSON imports are typed loosely by TypeScript; their structure is checked by validateTiers().
 const asGroup = (json: unknown): TokenGroup => structuredClone(json) as TokenGroup;
 
+interface ColorStep {
+  ramp: string;
+  step: RampStep;
+}
+const ref = ({ ramp, step }: ColorStep): string => `{primitive.color.${ramp}.${step}}`;
+
+/** Points a semantic color at primitives for light and (optionally) dark mode. */
+function setColor(semantic: TokenGroup, path: string[], light: ColorStep, dark?: ColorStep): void {
+  let group = semantic;
+  for (const key of path.slice(0, -1)) group = group[key] as TokenGroup;
+  const token = group[path.at(-1) ?? ""] as Token;
+  token.$value = ref(light);
+  const modes = token.$extensions?.["com.idrovocmich.ws"]?.modes;
+  if (dark && modes) modes.dark = ref(dark);
+}
+
+const neighbour = (step: RampStep, direction: 1 | -1): RampStep => {
+  const i = RAMP_STEPS.indexOf(step);
+  return RAMP_STEPS[i + direction] ?? RAMP_STEPS[i - direction] ?? step;
+};
+
+/** Light or dark neutral text, whichever reads better on the given color. */
+function onColor(primitive: TokenGroup, background: ColorStep): ColorStep {
+  const neutral = primitive["color"] as Record<string, Record<string, Token>>;
+  const bg = neutral[background.ramp]?.[String(background.step)]?.$value as OklchColor;
+  const light = neutral["neutral"]?.["50"]?.$value as OklchColor;
+  const dark = neutral["neutral"]?.["950"]?.$value as OklchColor;
+  return contrastRatio(light, bg) >= contrastRatio(dark, bg)
+    ? { ramp: "neutral", step: 50 }
+    : { ramp: "neutral", step: 950 };
+}
+
+/**
+ * Semantic decisions that depend on the brand: the primary action uses the exact brand color
+ * (its ramp anchor) and line strength follows the contrast control.
+ */
+function brandSemantics(
+  semantic: TokenGroup,
+  primitive: TokenGroup,
+  primary: OklchInput,
+  direction: ResolvedDirection,
+): TokenGroup {
+  const anchor = generateRamp(primary).anchor ?? 600;
+  // Light mode always shows the exact brand color; dark mode keeps it when it is light enough.
+  const lightAction: ColorStep = { ramp: "primary", step: anchor };
+  const darkAction: ColorStep = {
+    ramp: "primary",
+    step: anchor >= 300 && anchor <= 500 ? anchor : 400,
+  };
+  // Hover moves away from the text color, so the label keeps (or gains) contrast.
+  const lightOn = onColor(primitive, lightAction);
+  const darkOn = onColor(primitive, darkAction);
+  const awayFrom = (on: ColorStep): 1 | -1 => (on.step === 50 ? 1 : -1);
+  const lightHover: ColorStep = { ramp: "primary", step: neighbour(anchor, awayFrom(lightOn)) };
+  const darkHover: ColorStep = {
+    ramp: "primary",
+    step: neighbour(darkAction.step, awayFrom(darkOn)),
+  };
+  setColor(semantic, ["color", "action", "primary"], lightAction, darkAction);
+  setColor(semantic, ["color", "action", "primary-hover"], lightHover, darkHover);
+  setColor(semantic, ["color", "action", "on-primary"], lightOn, darkOn);
+
+  const lines = LINES_BY_CONTRAST[direction.contrast];
+  const neutral = (step: number): ColorStep => ({ ramp: "neutral", step: step as RampStep });
+  setColor(
+    semantic,
+    ["color", "line", "subtle"],
+    neutral(lines.subtle[0]),
+    neutral(lines.subtle[1]),
+  );
+  setColor(
+    semantic,
+    ["color", "line", "strong"],
+    neutral(lines.strong[0]),
+    neutral(lines.strong[1]),
+  );
+  return semantic;
+}
+
 /** Builds the full three-tier token tree; with no options it is the neutral engine default. */
 export function createTokens(options: EngineOptions = {}): TokenTree {
+  const direction = resolveDirectionOptions(options.direction);
+  const primitive = mergeGroups(
+    mergeGroups(asGroup(primitiveTokens), generatedPrimitives(options, direction)),
+    directionPrimitives(direction, options.displayWeights),
+  );
+  const primary = { ...DEFAULT_PALETTE, ...options.palette }.primary;
   return {
-    primitive: mergeGroups(asGroup(primitiveTokens), generatedPrimitives(options)),
-    semantic: asGroup(semanticTokens),
+    primitive,
+    semantic: brandSemantics(asGroup(semanticTokens), primitive, primary, direction),
     component: asGroup(componentTokens),
   };
 }

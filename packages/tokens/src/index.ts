@@ -7,14 +7,18 @@ export * from "./types.js";
 export { colorToCss, contrastRatio, generateRamp, oklch, RAMP_STEPS } from "./color.js";
 export type { OklchInput, Ramp, RampStep } from "./color.js";
 export { createTokens, DEFAULT_PALETTE } from "./generate.js";
+export type { EngineOptions, PaletteOptions, TypeScaleOptions } from "./generate.js";
+export { DEFAULT_DIRECTION, headingWeight, resolveDirectionOptions } from "./direction.js";
 export type {
+  Contrast,
+  Density,
+  DirectionOptions,
   Elevation,
-  EngineOptions,
-  MotionPersonality,
-  PaletteOptions,
-  Shape,
-  TypeScaleOptions,
-} from "./generate.js";
+  MotionIntensity,
+  ResolvedDirection,
+  ShapeLanguage,
+  TypePersonality,
+} from "./direction.js";
 export {
   flatten,
   getToken,

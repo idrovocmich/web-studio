@@ -47,9 +47,15 @@ import { buildTokens, createTokens, formatReport, validateTokens } from "@idrovo
 const tree = createTokens({
   palette: { primary: { l: 0.52, c: 0.13, h: 40 }, neutral: { c: 0.018, h: 70 } },
   fonts: { display: ["Fraunces", "serif"] },
-  shape: "round", // sharp | soft | round
-  motion: "calm", // calm | balanced | snappy
-  elevation: "soft", // flat | soft | dramatic
+  displayWeights: [400, 600], // the heading weight snaps to the weights the brand ships
+  direction: {
+    density: "airy", // airy | balanced | dense
+    contrast: "soft", // soft | balanced | stark
+    shape: "organic", // straight | rounded | organic
+    typePersonality: "warm", // editorial | technical | warm | expressive
+    motion: "subtle", // none | subtle | moderate | expressive
+    elevation: "soft", // optional: flat | soft | dramatic (stark brands default to flat)
+  },
 });
 
 const report = validateTokens(tree); // tier rules + WCAG AA in light and dark mode
@@ -60,6 +66,23 @@ const { tokensCss, themeCss } = await buildTokens(tree);
 
 Brands normally go through `@idrovocmich/brand-contract`, which validates the full brand and
 calls these functions.
+
+## Art direction
+
+The direction controls change token values, not just colors:
+
+| Control           | Changes                                                                                   |
+| ----------------- | ----------------------------------------------------------------------------------------- |
+| `density`         | space steps from 1.5rem up (section rhythm, gaps), grid gutters, margins, container width |
+| `contrast`        | default type-scale ratio, line strength, border width, default elevation                  |
+| `shape`           | radius scale                                                                              |
+| `typePersonality` | leading, tracking, reading measure, heading weight                                        |
+| `motion`          | durations and `semantic.motion.reveal` (distance, stagger, scale)                         |
+
+The primary action (`semantic.color.action.primary`) always uses the exact brand color: it
+references the ramp step the brand color is anchored to. Its text color is whichever neutral
+reads better on it, and the hover state moves away from that text. If the exact color cannot
+reach WCAG AA, validation fails; minimums are never lowered.
 
 ## Contrast
 

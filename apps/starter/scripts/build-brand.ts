@@ -24,7 +24,7 @@ try {
   process.exit(1);
 }
 
-const { brand, tokens, css, contrast } = loaded;
+const { brand, tokens, css, contrast, composition, attributes } = loaded;
 const { light, dark } = await buildTokens(tokens);
 
 const generatedDir = join(appDir, "src/generated");
@@ -45,7 +45,7 @@ await writeFile(join(generatedDir, "brand-tokens.css"), header + css.tokens);
 await writeFile(join(generatedDir, "brand-theme.css"), header + css.theme);
 await writeFile(
   join(generatedDir, "brand-data.json"),
-  `${JSON.stringify({ brand, light, dark, contrast }, null, 2)}\n`,
+  `${JSON.stringify({ brand, light, dark, contrast, composition, attributes }, null, 2)}\n`,
 );
 
 console.log(

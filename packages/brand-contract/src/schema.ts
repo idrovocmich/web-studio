@@ -89,6 +89,57 @@ const logoVariant = z.strictObject({
   alt: nonEmpty("el texto alternativo (alt) de la variante del logo"),
 });
 
+/** Default UI families the engine refuses as a brand's main font without a written reason. */
+export const GENERIC_FONT = /^(inter( (variable|display|tight))?|roboto( flex)?|arial( nova)?)$/i;
+
+const choice = <const T extends readonly [string, ...string[]]>(
+  values: T,
+  field: string,
+  meaning: string,
+) =>
+  z.enum(values, {
+    error: `${field} define ${meaning}. Usa ${values.map((v) => `"${v}"`).join(", ")}.`,
+  });
+
+export const directionSchema = z.strictObject(
+  {
+    density: choice(
+      ["airy", "balanced", "dense"],
+      "direction.density",
+      "cuánto aire rodea el contenido",
+    ),
+    contrast: choice(
+      ["soft", "balanced", "stark"],
+      "direction.contrast",
+      "la distancia entre extremos (tamaños, líneas, superficies)",
+    ),
+    shape: choice(["straight", "rounded", "organic"], "direction.shape", "el lenguaje de formas"),
+    typePersonality: choice(
+      ["editorial", "technical", "warm", "expressive"],
+      "direction.typePersonality",
+      "la personalidad tipográfica",
+    ),
+    motion: choice(
+      ["none", "subtle", "moderate", "expressive"],
+      "direction.motion",
+      "la intensidad del movimiento",
+    ),
+    signature: z.string().trim().min(15, {
+      error:
+        "Describe la decisión memorable de la marca en una frase (direction.signature), por ejemplo «titulares gigantes que se salen de la rejilla».",
+    }),
+    elevation: z
+      .enum(["flat", "soft", "dramatic"], {
+        error: 'direction.elevation debe ser "flat", "soft" o "dramatic".',
+      })
+      .optional(),
+  },
+  {
+    error:
+      "Falta la dirección de arte (direction): density, contrast, shape, typePersonality, motion y signature.",
+  },
+);
+
 const list = (min: number, what: string) =>
   z.array(z.string().trim().min(1)).min(min, { error: `Añade al menos ${min} ${what}.` });
 
@@ -121,26 +172,48 @@ export const brandSchema = z.strictObject({
     { error: "Falta la paleta base (palette) con primary, accent y neutral." },
   ),
 
-  typography: z.strictObject(
-    {
-      display: fontRole("display"),
-      body: fontRole("body"),
-      mono: fontRole("mono").optional(),
-      pairing: z.string().trim().min(10, {
-        error:
-          "Explica en una frase por qué estas tipografías funcionan juntas (typography.pairing).",
-      }),
-      scale: z
-        .strictObject({
-          baseMin: z.number().min(0.75).max(1.5).optional(),
-          baseMax: z.number().min(0.75).max(1.75).optional(),
-          ratioMin: z.number().min(1.05).max(1.5).optional(),
-          ratioMax: z.number().min(1.05).max(1.618).optional(),
-        })
-        .optional(),
-    },
-    { error: "Falta la tipografía (typography) con los roles display y body." },
-  ),
+  typography: z
+    .strictObject(
+      {
+        display: fontRole("display"),
+        body: fontRole("body"),
+        mono: fontRole("mono").optional(),
+        pairing: z.string().trim().min(10, {
+          error:
+            "Explica en una frase por qué estas tipografías funcionan juntas (typography.pairing).",
+        }),
+        genericFontReason: z
+          .string()
+          .trim()
+          .min(20, {
+            error:
+              "Si usas una fuente genérica como principal, explica por qué en al menos una frase (typography.genericFontReason).",
+          })
+          .optional(),
+        scale: z
+          .strictObject({
+            baseMin: z.number().min(0.75).max(1.5).optional(),
+            baseMax: z.number().min(0.75).max(1.75).optional(),
+            ratioMin: z.number().min(1.05).max(1.5).optional(),
+            ratioMax: z.number().min(1.05).max(1.618).optional(),
+          })
+          .optional(),
+      },
+      { error: "Falta la tipografía (typography) con los roles display y body." },
+    )
+    .superRefine((typography, ctx) => {
+      if (typography.genericFontReason) return;
+      for (const role of ["display", "body"] as const) {
+        const family = typography[role].family;
+        if (GENERIC_FONT.test(family)) {
+          ctx.addIssue({
+            code: "custom",
+            path: [role, "family"],
+            message: `"${family}" es una fuente genérica y no se acepta como fuente principal. Elige una tipografía con carácter o justifica la elección en typography.genericFontReason.`,
+          });
+        }
+      }
+    }),
 
   logos: z
     .strictObject(
@@ -194,14 +267,18 @@ export const brandSchema = z.strictObject({
 
   neverDo: list(1, 'regla de "nunca hacer" (neverDo)'),
 
+  direction: directionSchema,
+
+  /** Removed in 0.2.0: kept only to explain the migration. */
   style: z
-    .strictObject({
-      shape: z.enum(["sharp", "soft", "round"]).optional(),
-      motion: z.enum(["calm", "balanced", "snappy"]).optional(),
-      elevation: z.enum(["flat", "soft", "dramatic"]).optional(),
+    .never({
+      error:
+        'El bloque "style" ya no existe: usa "direction" (density, contrast, shape, typePersonality, motion y signature).',
     })
     .optional(),
 });
+
+export type Direction = z.output<typeof directionSchema>;
 
 /** Brand as written in `brand.json` (colors may be strings). */
 export type BrandInput = z.input<typeof brandSchema>;

@@ -1,0 +1,209 @@
+---
+import type { Composition } from "@idrovocmich/brand-contract";
+import type { MethodSection } from "@idrovocmich/content-schema";
+import Reveal from "@idrovocmich/motion/Reveal.astro";
+import Container from "@idrovocmich/ui/Container.astro";
+import Eyebrow from "@idrovocmich/ui/Eyebrow.astro";
+import Heading from "@idrovocmich/ui/Heading.astro";
+import Split from "@idrovocmich/ui/Split.astro";
+import Stack from "@idrovocmich/ui/Stack.astro";
+import Text from "@idrovocmich/ui/Text.astro";
+import Section from "./Section.astro";
+import { indexLabel, methodVariant } from "./variants";
+
+interface Props {
+  section: MethodSection;
+  composition: Composition;
+}
+
+const { section, composition } = Astro.props;
+const variant = methodVariant(section, composition);
+const { eyebrow, title, intro, steps } = section;
+---
+
+<Section type="method" {variant} id={section.id} signature={section.signature}>
+  <Container>
+    {variant === "steps" && (
+      <Split ratio="4-8">
+        <Stack gap="sm" class="method-steps-head">
+          {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+          <Heading level={2}>{title}</Heading>
+          {intro && <Text tone="secondary">{intro}</Text>}
+        </Stack>
+        <Reveal mode="stagger" as="ol" class="method-steps">
+          {steps.map((s, i) => (
+            <li>
+              <span class="method-number" aria-hidden="true">
+                {i + 1}
+              </span>
+              <Stack gap="xs">
+                <Heading level={3} size="h3">
+                  {s.title}
+                </Heading>
+                <Text tone="secondary">{s.body}</Text>
+                {s.duration && (
+                  <Text size="small" tone="muted">
+                    {s.duration}
+                  </Text>
+                )}
+              </Stack>
+            </li>
+          ))}
+        </Reveal>
+      </Split>
+    )}
+
+    {variant === "columns" && (
+      <Stack gap="xl">
+        <Stack gap="sm">
+          {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+          <Heading level={2}>{title}</Heading>
+          {intro && <Text tone="secondary">{intro}</Text>}
+        </Stack>
+        <ol class="method-columns" style={`--method-count: ${steps.length}`}>
+          {steps.map((s, i) => (
+            <li>
+              <span class="method-index">{indexLabel(i)}</span>
+              <Heading level={3} size="h4">
+                {s.title}
+              </Heading>
+              <Text size="small" tone="secondary">
+                {s.body}
+              </Text>
+              {s.duration && (
+                <Text size="caption" tone="muted">
+                  {s.duration}
+                </Text>
+              )}
+            </li>
+          ))}
+        </ol>
+      </Stack>
+    )}
+
+    {variant === "phases" && (
+      <Split ratio="5-7">
+        <Stack gap="sm">
+          {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+          <Heading level={2}>{title}</Heading>
+          {intro && <Text tone="secondary">{intro}</Text>}
+        </Stack>
+        <div class="method-phases">
+          {steps.map((s, i) => (
+            <details open={i === 0}>
+              <summary>
+                <span class="method-index">{indexLabel(i)}</span>
+                <span class="method-phase-title">{s.title}</span>
+                {s.duration && <span class="method-phase-duration">{s.duration}</span>}
+              </summary>
+              <Text tone="secondary">{s.body}</Text>
+            </details>
+          ))}
+        </div>
+      </Split>
+    )}
+  </Container>
+</Section>
+
+<style>
+  ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .method-index {
+    color: var(--ws-section-index-color);
+    font-family: var(--ws-eyebrow-font-mono);
+    font-size: var(--ws-text-size-small);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Steps: big numerals, one step per row. */
+  :global(.method-steps-head) {
+    position: sticky;
+    top: var(--ws-flow-gap-lg);
+    align-self: start;
+  }
+  :global(.method-steps) {
+    display: grid;
+    gap: var(--ws-flow-gap-xl);
+  }
+  :global(.method-steps) > li {
+    display: grid;
+    grid-template-columns: minmax(3ch, auto) minmax(0, 1fr);
+    gap: var(--ws-flow-gap-lg);
+    align-items: start;
+  }
+  .method-number {
+    font-family: var(--ws-heading-font-family);
+    font-size: var(--ws-heading-size-display);
+    font-weight: var(--ws-heading-font-weight);
+    line-height: 0.85;
+    color: var(--ws-section-index-color);
+    font-variant-numeric: lining-nums;
+  }
+
+  /* Columns: a left-to-right diagram, joined by one rule. */
+  .method-columns {
+    display: grid;
+    gap: var(--ws-flow-gap-lg);
+    border-top: var(--ws-section-rule-strong);
+  }
+  .method-columns li {
+    display: grid;
+    align-content: start;
+    gap: var(--ws-flow-gap-xs);
+    padding-top: var(--ws-flow-gap-md);
+  }
+  @media (width >= 64rem) {
+    .method-columns {
+      grid-template-columns: repeat(var(--method-count), minmax(0, 1fr));
+      gap: 0;
+    }
+    .method-columns li {
+      padding-inline-end: var(--ws-flow-gap-md);
+      border-left: var(--ws-section-rule);
+      padding-inline-start: var(--ws-flow-gap-sm);
+    }
+    .method-columns li:first-child {
+      border-left: 0;
+      padding-inline-start: 0;
+    }
+  }
+
+  /* Phases: native disclosure widgets, keyboard and screen-reader friendly. */
+  .method-phases {
+    border-top: var(--ws-section-rule-strong);
+  }
+  .method-phases details {
+    border-bottom: var(--ws-section-rule);
+  }
+  .method-phases summary {
+    display: grid;
+    grid-template-columns: 4ch minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: var(--ws-flow-gap-sm);
+    padding-block: var(--ws-flow-gap-md);
+    cursor: pointer;
+    list-style: none;
+  }
+  .method-phases summary::-webkit-details-marker {
+    display: none;
+  }
+  .method-phases summary:focus-visible {
+    outline: var(--ws-link-focus);
+    outline-offset: 2px;
+  }
+  .method-phase-title {
+    font-family: var(--ws-heading-font-family);
+    font-size: var(--ws-heading-size-h4);
+    font-weight: var(--ws-heading-font-weight);
+  }
+  .method-phase-duration {
+    color: var(--ws-section-index-color);
+    font-size: var(--ws-text-size-small);
+  }
+  .method-phases details > :global(.ws-text) {
+    padding: 0 0 var(--ws-flow-gap-md) calc(4ch + var(--ws-flow-gap-sm));
+  }
+</style>

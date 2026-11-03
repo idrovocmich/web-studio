@@ -1,19 +1,28 @@
 ---
 import type { Composition } from "@idrovocmich/brand-contract";
-import type { Section } from "@idrovocmich/content-schema";
+import type { Section, Site } from "@idrovocmich/content-schema";
+import Comparison from "./Comparison.astro";
+import Contact from "./Contact.astro";
 import Cta from "./Cta.astro";
+import Faq from "./Faq.astro";
 import Features from "./Features.astro";
+import Gallery from "./Gallery.astro";
 import Hero from "./Hero.astro";
 import Manifesto from "./Manifesto.astro";
+import Method from "./Method.astro";
 import Proof from "./Proof.astro";
+import Story from "./Story.astro";
+import Testimonials from "./Testimonials.astro";
 
 interface Props {
   sections: Section[];
   composition: Composition;
+  /** Site settings: the contact section shows their contact details. */
+  site?: Site;
 }
 
 // Renders a page's sections in order, each choosing its composition from the brand.
-const { sections, composition } = Astro.props;
+const { sections, composition, site } = Astro.props;
 ---
 
 {sections.map((section) => {
@@ -28,5 +37,19 @@ const { sections, composition } = Astro.props;
       return <Proof {section} {composition} />;
     case "cta":
       return <Cta {section} {composition} />;
+    case "story":
+      return <Story {section} {composition} />;
+    case "method":
+      return <Method {section} {composition} />;
+    case "gallery":
+      return <Gallery {section} {composition} />;
+    case "comparison":
+      return <Comparison {section} {composition} />;
+    case "testimonials":
+      return <Testimonials {section} {composition} />;
+    case "faq":
+      return <Faq {section} {composition} />;
+    case "contact":
+      return <Contact {section} {composition} contact={site?.contact} />;
   }
 })}

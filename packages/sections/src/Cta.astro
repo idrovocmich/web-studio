@@ -20,6 +20,8 @@ interface Props {
 
 const { section, composition, labels = { name: "Nombre", email: "Correo" } } = Astro.props;
 const variant = ctaVariant(section, composition);
+// Field ids are prefixed so two forms on one page never share an id.
+const fid = (name: string): string => `${section.id ?? "cta"}-${name}`;
 const { title, body, action, form } = section;
 ---
 
@@ -51,8 +53,21 @@ const { title, body, action, form } = section;
         </Stack>
         <form action={form.action} method="post" class="cta-form">
           <Stack gap="md">
-            <Field label={labels.name} name="nombre" autocomplete="name" required />
-            <Field label={labels.email} name="correo" type="email" autocomplete="email" required />
+            <Field
+              label={labels.name}
+              name="nombre"
+              id={fid("nombre")}
+              autocomplete="name"
+              required
+            />
+            <Field
+              label={labels.email}
+              name="correo"
+              id={fid("correo")}
+              type="email"
+              autocomplete="email"
+              required
+            />
             <div>
               <Button type="submit">{form.submitLabel}</Button>
             </div>

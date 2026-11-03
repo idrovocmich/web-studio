@@ -2,6 +2,13 @@ import type { Composition } from "@idrovocmich/brand-contract";
 import { parsePage, parseSite, type Section } from "@idrovocmich/content-schema";
 import { describe, expect, it } from "vitest";
 import {
+  comparisonVariant,
+  contactVariant,
+  faqVariant,
+  galleryVariant,
+  methodVariant,
+  storyVariant,
+  testimonialsVariant,
   ctaVariant,
   featuresVariant,
   footerVariant,
@@ -82,6 +89,46 @@ const { sections } = parsePage({
     },
   ],
 });
+const more = parsePage({
+  slug: "mas",
+  title: "Más",
+  description: "Las siete secciones de la segunda tanda, con contenido compartido por las marcas.",
+  sections: [
+    {
+      type: "story",
+      title: "Historia",
+      chapters: [
+        { title: "Uno", body: "Texto.", date: "2024" },
+        { title: "Dos", body: "Texto.", date: "2025" },
+      ],
+    },
+    {
+      type: "method",
+      title: "Método",
+      steps: [1, 2, 3].map((n) => ({ title: `Paso ${n}`, body: "Texto." })),
+    },
+    { type: "gallery", images: [1, 2, 3].map((n) => ({ alt: `Imagen ${n}` })) },
+    {
+      type: "comparison",
+      title: "Planes",
+      columns: [{ name: "A" }, { name: "B", highlight: true }, { name: "C" }],
+      rows: [{ label: "Fila", values: [true, true, false] }],
+    },
+    {
+      type: "testimonials",
+      quotes: [
+        { quote: "Una cita de prueba.", author: "Uno", figure: { value: "3×", label: "más" } },
+        { quote: "Otra cita de prueba.", author: "Dos" },
+      ],
+    },
+    {
+      type: "faq",
+      title: "Preguntas",
+      items: ["A", "A", "B"].map((topic, i) => ({ topic, question: `¿${i}?`, answer: "Sí." })),
+    },
+    { type: "contact", title: "Contacto", form: { action: "/", submitLabel: "Enviar" } },
+  ],
+}).sections;
 const site = parseSite({ name: "Demo", locale: "es", nav: [], footer: {} });
 function get<T extends Section["type"]>(type: T): Extract<Section, { type: T }> {
   const found = sections.find((s): s is Extract<Section, { type: T }> => s.type === type);
@@ -99,7 +146,38 @@ const variantsFor = (c: Composition): string[] => [
   footerVariant(site, c),
 ];
 
+const getMore = <T extends Section["type"]>(type: T): Extract<Section, { type: T }> => {
+  const found = more.find((s): s is Extract<Section, { type: T }> => s.type === type);
+  if (!found) throw new Error(`Falta la sección ${type} en el contenido de prueba`);
+  return found;
+};
+const moreVariantsFor = (c: Composition): string[] => [
+  storyVariant(getMore("story"), c),
+  methodVariant(getMore("method"), c),
+  galleryVariant(getMore("gallery"), c),
+  comparisonVariant(getMore("comparison"), c),
+  testimonialsVariant(getMore("testimonials"), c),
+  faqVariant(getMore("faq"), c),
+  contactVariant(getMore("contact"), c),
+];
+
 describe("auto variants", () => {
+  it("also differ for every section of the second batch", () => {
+    const a = moreVariantsFor(warm);
+    const b = moreVariantsFor(technical);
+    expect(a).toEqual([
+      "interleaved",
+      "steps",
+      "mosaic",
+      "plans",
+      "conversation",
+      "two-column",
+      "details",
+    ]);
+    expect(b).toEqual(["timeline", "columns", "strip", "table", "with-figure", "index", "steps"]);
+    expect(a.filter((v, i) => v === b[i])).toEqual([]);
+  });
+
   it("give the same content a different structure per brand", () => {
     const a = variantsFor(warm);
     const b = variantsFor(technical);

@@ -7,6 +7,10 @@
       "href": "/"
     },
     {
+      "label": "Secciones",
+      "href": "/secciones"
+    },
+    {
       "label": "Dirección",
       "href": "/direccion"
     },
@@ -25,6 +29,8 @@
     ]
   },
   "contact": {
-    "email": "hola@example.com"
+    "email": "hola@example.com",
+    "phone": "+34 600 000 000",
+    "address": "Calle de Ejemplo 1, 28001 Madrid"
   }
 }

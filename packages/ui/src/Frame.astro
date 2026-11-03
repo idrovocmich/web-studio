@@ -1,0 +1,61 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import type { Crop, Ratio } from "./types";
+
+interface Props extends HTMLAttributes<"div"> {
+  ratio?: Ratio;
+  /** "brand" follows the composition: straight → rect, rounded → rounded, organic → arch. */
+  crop?: Crop;
+  /** Shown, and announced, when no image is slotted yet. */
+  placeholder?: string;
+}
+
+const { ratio = "4/3", crop = "brand", placeholder, class: className, ...rest } = Astro.props;
+const empty = !Astro.slots.has("default");
+---
+
+<div
+  class:list={["ws-frame", className]}
+  data-crop={crop}
+  style={`aspect-ratio: ${ratio}`}
+  role={empty && placeholder ? "img" : undefined}
+  aria-label={empty && placeholder ? placeholder : undefined}
+  {...rest}
+>
+  {empty ? placeholder && <span aria-hidden="true">{placeholder}</span> : <slot />}
+</div>
+
+<style>
+  .ws-frame {
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    background: var(--ws-frame-bg);
+    color: var(--ws-frame-fg);
+    border-radius: var(--ws-frame-radius);
+  }
+  .ws-frame > :global(img),
+  .ws-frame > :global(picture),
+  .ws-frame > :global(video) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .ws-frame > span {
+    padding: var(--ws-flow-gap-md);
+    font-size: var(--ws-text-size-small);
+    text-align: center;
+  }
+
+  .ws-frame[data-crop="rect"],
+  :global(:root[data-ws-media="rect"]) .ws-frame[data-crop="brand"] {
+    border-radius: 0;
+  }
+  /* Organic media: an arch, rounded on top and gently on the bottom. */
+  .ws-frame[data-crop="organic"],
+  :global(:root[data-ws-media="organic"]) .ws-frame[data-crop="brand"] {
+    border-radius: 999px 999px var(--ws-frame-radius) var(--ws-frame-radius) / 50% 50%
+      var(--ws-frame-radius) var(--ws-frame-radius);
+  }
+</style>

@@ -1,0 +1,72 @@
+---
+import type { HTMLAttributes } from "astro/types";
+
+interface Props extends HTMLAttributes<"p"> {
+  size?: "lead" | "body" | "small" | "caption";
+  tone?: "default" | "secondary" | "muted";
+  /** Limit the line length to the brand's reading measure. */
+  measure?: boolean;
+  as?: "p" | "div" | "span";
+}
+
+const {
+  size = "body",
+  tone = "default",
+  measure = true,
+  as: Tag = "p",
+  class: className,
+  ...rest
+} = Astro.props;
+---
+
+<Tag
+  class:list={["ws-text", className]}
+  data-size={size}
+  data-tone={tone}
+  data-measure={measure ? "" : undefined}
+  {...rest}
+>
+  <slot />
+</Tag>
+
+<style>
+  .ws-text {
+    margin: 0;
+    color: var(--ws-text-color);
+    font-family: var(--ws-text-font-family);
+    font-size: var(--ws-text-size-body);
+    line-height: var(--ws-text-leading);
+    text-wrap: pretty;
+  }
+  .ws-text[data-measure] {
+    max-width: var(--ws-text-measure);
+  }
+  .ws-text[data-size="lead"] {
+    font-size: var(--ws-text-size-lead);
+  }
+  .ws-text[data-size="small"] {
+    font-size: var(--ws-text-size-small);
+  }
+  .ws-text[data-size="caption"] {
+    font-size: var(--ws-text-size-caption);
+  }
+  .ws-text[data-tone="secondary"] {
+    color: var(--ws-text-color-secondary);
+  }
+  .ws-text[data-tone="muted"] {
+    color: var(--ws-text-color-muted);
+  }
+
+  :global(:root[data-ws-numerals="tabular-nums"]) .ws-text {
+    font-variant-numeric: tabular-nums;
+  }
+  :global(:root[data-ws-numerals="oldstyle-nums"]) .ws-text {
+    font-variant-numeric: oldstyle-nums;
+  }
+  :global(:root[data-ws-numerals="proportional-nums"]) .ws-text {
+    font-variant-numeric: proportional-nums;
+  }
+  :global(:root[data-ws-numerals="lining-nums"]) .ws-text {
+    font-variant-numeric: lining-nums;
+  }
+</style>

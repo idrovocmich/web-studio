@@ -1,4 +1,9 @@
 ---
+import Card from "@idrovocmich/ui/Card.astro";
+import Container from "@idrovocmich/ui/Container.astro";
+import Grid from "@idrovocmich/ui/Grid.astro";
+import Heading from "@idrovocmich/ui/Heading.astro";
+import Text from "@idrovocmich/ui/Text.astro";
 import Base from "../layouts/Base.astro";
 import { brand } from "../lib/brand";
 
@@ -44,15 +49,19 @@ const features = [
     </div>
   </section>
 
-  <section id="rasgos" class="bg-surface-subtle py-section">
-    <div class="ws-container grid gap-lg md:grid-cols-3">
-      {features.map((f) => (
-        <article class="ws-card flex flex-col gap-xs bg-surface-base">
-          <h2 class="text-h4">{f.title}</h2>
-          <p class="text-content-secondary">{f.body}</p>
-        </article>
-      ))}
-    </div>
+  <section id="rasgos" class="py-section">
+    <Container>
+      <Grid pattern="lead">
+        {features.map((f, i) => (
+          <Card>
+            <Heading level={2} size={i === 0 ? "h2" : "h4"}>
+              {f.title}
+            </Heading>
+            <Text tone="secondary">{f.body}</Text>
+          </Card>
+        ))}
+      </Grid>
+    </Container>
   </section>
 
   <section class="ws-container py-section">

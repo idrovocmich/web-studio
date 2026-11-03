@@ -1,0 +1,50 @@
+---
+interface Props {
+  /** Logo for light backgrounds. */
+  src: string;
+  alt: string;
+  /** Variant for dark backgrounds; shown in dark mode (system or forced with data-theme). */
+  darkSrc?: string;
+  /** Rendered height; never set it below the brand's minimum size. */
+  height?: string;
+  href?: string;
+  class?: string;
+}
+
+const { src, alt, darkSrc, height = "2rem", href, class: className } = Astro.props;
+const Tag = href ? "a" : "span";
+---
+
+<Tag class:list={["ws-logo", className]} href={href} style={`--ws-logo-height: ${height}`}>
+  <img src={src} alt={alt} class="ws-logo-light" />
+  {darkSrc && <img src={darkSrc} alt={alt} class="ws-logo-dark" />}
+</Tag>
+
+<style>
+  .ws-logo {
+    display: inline-flex;
+    align-items: center;
+  }
+  img {
+    display: block;
+    width: auto;
+    height: var(--ws-logo-height);
+  }
+  .ws-logo-dark {
+    display: none;
+  }
+  :global([data-theme="dark"]) .ws-logo-light:has(+ .ws-logo-dark) {
+    display: none;
+  }
+  :global([data-theme="dark"]) .ws-logo-dark {
+    display: block;
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme="light"])) .ws-logo-light:has(+ .ws-logo-dark) {
+      display: none;
+    }
+    :global(:root:not([data-theme="light"])) .ws-logo-dark {
+      display: block;
+    }
+  }
+</style>

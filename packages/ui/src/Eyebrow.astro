@@ -1,0 +1,40 @@
+---
+import type { HTMLAttributes } from "astro/types";
+
+interface Props extends HTMLAttributes<"p"> {
+  as?: "p" | "span" | "div";
+}
+
+const { as: Tag = "p", class: className, ...rest } = Astro.props;
+---
+
+<!-- Style follows the composition: mono caps, italic, caps or sentence case. -->
+<Tag class:list={["ws-eyebrow", className]} {...rest}>
+  <slot />
+</Tag>
+
+<style>
+  .ws-eyebrow {
+    margin: 0;
+    color: var(--ws-eyebrow-color);
+    font-family: var(--ws-eyebrow-font-body);
+    font-size: var(--ws-eyebrow-size);
+    font-weight: var(--ws-eyebrow-weight);
+    line-height: 1.3;
+  }
+  :global(:root[data-ws-eyebrow="mono-caps"]) .ws-eyebrow {
+    font-family: var(--ws-eyebrow-font-mono);
+    font-weight: 400;
+    letter-spacing: var(--ws-eyebrow-tracking);
+    text-transform: uppercase;
+  }
+  :global(:root[data-ws-eyebrow="italic"]) .ws-eyebrow {
+    font-family: var(--ws-eyebrow-font-display);
+    font-style: italic;
+    font-weight: 400;
+  }
+  :global(:root[data-ws-eyebrow="caps"]) .ws-eyebrow {
+    letter-spacing: var(--ws-eyebrow-tracking);
+    text-transform: uppercase;
+  }
+</style>

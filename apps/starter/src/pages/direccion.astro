@@ -1,0 +1,208 @@
+---
+import Reveal from "@idrovocmich/motion/Reveal.astro";
+import Bleed from "@idrovocmich/ui/Bleed.astro";
+import Button from "@idrovocmich/ui/Button.astro";
+import Card from "@idrovocmich/ui/Card.astro";
+import Cluster from "@idrovocmich/ui/Cluster.astro";
+import Container from "@idrovocmich/ui/Container.astro";
+import Eyebrow from "@idrovocmich/ui/Eyebrow.astro";
+import Field from "@idrovocmich/ui/Field.astro";
+import Figure from "@idrovocmich/ui/Figure.astro";
+import Grid from "@idrovocmich/ui/Grid.astro";
+import Heading from "@idrovocmich/ui/Heading.astro";
+import Separator from "@idrovocmich/ui/Separator.astro";
+import Split from "@idrovocmich/ui/Split.astro";
+import Stack from "@idrovocmich/ui/Stack.astro";
+import Text from "@idrovocmich/ui/Text.astro";
+import Base from "../layouts/Base.astro";
+import { brand, composition, contrast, light } from "../lib/brand";
+
+// The same content for every brand: only the art direction changes the structure.
+const principles = [
+  {
+    title: "Ritmo",
+    body: "La densidad decide cuánto aire hay entre bloques y cuántas columnas caben.",
+    value: composition.rhythm,
+  },
+  {
+    title: "Proporción",
+    body: "La asimetría reparte la rejilla de doce columnas entre contenido y acompañamiento.",
+    value: composition.split.join(" / "),
+  },
+  {
+    title: "Superficies",
+    body: "El contraste elige entre fondos teñidos, sombras o líneas.",
+    value: composition.surface,
+  },
+  {
+    title: "Movimiento",
+    body: "La intensidad fija la distancia y el escalonado de las entradas.",
+    value: composition.reveal,
+  },
+];
+
+const figures = [
+  { value: String(light.length), label: "tokens generados para esta marca" },
+  { value: String(contrast.length), label: "pares de contraste AA verificados" },
+  { value: "12", label: "columnas en la rejilla base" },
+];
+---
+
+<Base title="Dirección de arte">
+  <Container as="section" class="py-section">
+    <Split align="end">
+      <Stack gap="lg">
+        <Eyebrow>Dirección de arte · {brand.name}</Eyebrow>
+        <Heading level={1} size="display">
+          Mismo contenido, otra estructura
+        </Heading>
+        <Text size="lead" tone="secondary">
+          Esta página tiene el mismo texto para todas las marcas. Cambia la marca activa y verás
+          otra rejilla, otra escala y otro ritmo, no solo otros colores.
+        </Text>
+        <Cluster gap="md">
+          <Button href="/specimens">Ver especímenes</Button>
+          <Button href="#firma" variant="quiet">
+            Leer la firma
+          </Button>
+        </Cluster>
+      </Stack>
+      <Bleed side="end">
+        <Figure
+          ratio="4/5"
+          placeholder="Imagen principal de la marca"
+          caption={`Recorte de imagen: ${composition.media}`}
+        />
+      </Bleed>
+    </Split>
+  </Container>
+
+  <Container>
+    <Separator />
+  </Container>
+
+  <Container as="section" class="py-section">
+    <Stack gap="xl">
+      <Heading level={2}>Cuatro decisiones que cambian la composición</Heading>
+      <Reveal mode="stagger">
+        <Grid pattern="lead">
+          {principles.map((p, i) => (
+            <Card>
+              {i === 0 && <Figure ratio="16/9" placeholder="Detalle de la marca" />}
+              <Eyebrow>{p.value}</Eyebrow>
+              <Heading level={3} size={i === 0 ? "h2" : "h4"}>
+                {p.title}
+              </Heading>
+              <Text tone="secondary">{p.body}</Text>
+            </Card>
+          ))}
+        </Grid>
+      </Reveal>
+    </Stack>
+  </Container>
+
+  <Container>
+    <Separator />
+  </Container>
+
+  <Container as="section" class="py-section">
+    <Reveal>
+      <Stack gap="lg">
+        <Eyebrow id="firma">La decisión memorable</Eyebrow>
+        <Heading level={2} size="h1">
+          {brand.direction.signature}
+        </Heading>
+      </Stack>
+    </Reveal>
+  </Container>
+
+  <Container as="section" class="py-section">
+    <Reveal mode="stagger" as="ul" class="direccion-figures">
+      {figures.map((f) => (
+        <li>
+          <Text as="span" class="direccion-figure-value">
+            {f.value}
+          </Text>
+          <Text size="small" tone="secondary">
+            {f.label}
+          </Text>
+        </li>
+      ))}
+    </Reveal>
+  </Container>
+
+  <Container>
+    <Separator />
+  </Container>
+
+  <Container as="section" class="py-section">
+    <Split ratio="5-7">
+      <Stack gap="sm">
+        <Heading level={2}>Formulario de ejemplo</Heading>
+        <Text tone="secondary">
+          Campos con etiqueta visible, ayuda y error anunciados a lectores de pantalla. No envía
+          nada.
+        </Text>
+      </Stack>
+      <form class="direccion-form" action="/direccion" method="get">
+        <Stack gap="md">
+          <Field label="Nombre" name="nombre" autocomplete="name" required />
+          <Field
+            label="Correo"
+            name="correo"
+            type="email"
+            autocomplete="email"
+            required
+            error="Escribe un correo con el formato nombre@dominio.com."
+            value="nombre@"
+          />
+          <Field
+            label="Tema"
+            name="tema"
+            type="select"
+            options={[
+              { value: "proyecto", label: "Un proyecto nuevo" },
+              { value: "otro", label: "Otra consulta" },
+            ]}
+          />
+          <Field label="Mensaje" name="mensaje" type="textarea" hint="Dos o tres frases bastan." />
+          <div>
+            <Button type="submit">Enviar</Button>
+          </div>
+        </Stack>
+      </form>
+    </Split>
+  </Container>
+</Base>
+
+<style>
+  .direccion-figures {
+    display: grid;
+    gap: var(--ws-flow-gap-lg);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .direccion-figures li {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ws-flow-gap-2xs);
+  }
+  .direccion-figures :global(.direccion-figure-value) {
+    font-family: var(--ws-heading-font-family);
+    font-size: var(--ws-heading-size-display);
+    line-height: 1;
+  }
+  @media (width >= 48rem) {
+    .direccion-figures {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  /* Technical brands set figures in mono: their signature is the numbers. */
+  :global(:root[data-ws-eyebrow="mono-caps"]) .direccion-figures :global(.direccion-figure-value) {
+    font-family: var(--ws-eyebrow-font-mono);
+  }
+  .direccion-form {
+    width: 100%;
+  }
+</style>

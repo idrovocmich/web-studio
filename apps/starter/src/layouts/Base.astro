@@ -1,4 +1,5 @@
 ---
+import Logo from "@idrovocmich/ui/Logo.astro";
 import "../styles/global.css";
 import { attributes, brand, googleFontsHref, logoSrc } from "../lib/brand";
 
@@ -9,16 +10,10 @@ interface Props {
 const { title } = Astro.props;
 const fontsHref = googleFontsHref();
 const darkLogo = brand.logos.variants.find((v) => v.background !== "light");
+// `attributes` are the data-ws-* direction and composition flags the components follow.
 ---
 
-<html
-  lang="es"
-  data-ws-density={attributes["data-ws-density"]}
-  data-ws-contrast={attributes["data-ws-contrast"]}
-  data-ws-shape={attributes["data-ws-shape"]}
-  data-ws-type={attributes["data-ws-type"]}
-  data-ws-motion={attributes["data-ws-motion"]}
->
+<html lang="es" {...attributes}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -37,23 +32,18 @@ const darkLogo = brand.logos.variants.find((v) => v.background !== "light");
   <body class="min-h-dvh bg-surface-base text-content-primary antialiased">
     <header class="border-b border-line-subtle">
       <div class="ws-container flex items-center justify-between gap-md py-sm">
-        <a href="/" class="flex items-center" aria-label={`${brand.name}: inicio`}>
-          <img
-            src={logoSrc(brand.logos.primary.file)}
-            alt={brand.logos.primary.alt}
-            class="logo-light h-8 w-auto"
-          />
-          {darkLogo && (
-            <img
-              src={logoSrc(darkLogo.file)}
-              alt={darkLogo.alt}
-              class="logo-dark hidden h-8 w-auto"
-            />
-          )}
-        </a>
+        <Logo
+          href="/"
+          src={logoSrc(brand.logos.primary.file)}
+          alt={`${brand.name}: inicio`}
+          {...(darkLogo && { darkSrc: logoSrc(darkLogo.file) })}
+        />
         <nav class="flex items-center gap-md text-small">
           <a class="ws-link" href="/">
             Inicio
+          </a>
+          <a class="ws-link" href="/direccion">
+            Dirección
           </a>
           <a class="ws-link" href="/specimens">
             Especímenes
@@ -77,23 +67,6 @@ const darkLogo = brand.logos.variants.find((v) => v.background !== "light");
         <code class="font-mono">{brand.id}</code>
       </p>
     </footer>
-
-    <style>
-      :global([data-theme="dark"]) .logo-light {
-        display: none;
-      }
-      :global([data-theme="dark"]) .logo-dark {
-        display: block;
-      }
-      @media (prefers-color-scheme: dark) {
-        :global(:root:not([data-theme="light"])) .logo-light {
-          display: none;
-        }
-        :global(:root:not([data-theme="light"])) .logo-dark {
-          display: block;
-        }
-      }
-    </style>
 
     <script>
       const order = ["system", "light", "dark"] as const;

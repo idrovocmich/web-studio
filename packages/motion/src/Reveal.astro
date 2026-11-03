@@ -1,0 +1,101 @@
+---
+import type { HTMLAttributes } from "astro/types";
+
+interface Props extends HTMLAttributes<"div"> {
+  /**
+   * "stagger" reveals the direct children one after another. When there is a single child
+   * (for example a Grid), its children are staggered instead.
+   */
+  mode?: "single" | "stagger";
+  as?: "div" | "section" | "ul" | "ol" | "header" | "article";
+}
+
+const { mode = "single", as: Tag = "div", class: className, ...rest } = Astro.props;
+---
+
+<Tag class:list={["ws-reveal", className]} data-ws-reveal-mode={mode} {...rest}>
+  <slot />
+</Tag>
+
+<script>
+  // Progressive enhancement: content is visible without JS, with reduced motion, in automated
+  // browsers and when the brand's motion is "none". Elements already on screen are revealed before hiding anything.
+  const root = document.documentElement;
+  const choreography = root.dataset["wsReveal"];
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // Automated browsers (screenshots, audits) must see every element without scrolling.
+  const automated = navigator.webdriver;
+
+  if (
+    choreography &&
+    choreography !== "none" &&
+    !reduce &&
+    !automated &&
+    "IntersectionObserver" in window
+  ) {
+    const show = (el: Element): void => el.classList.add("is-revealed");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          show(entry.target);
+          observer.unobserve(entry.target);
+        }
+      },
+      { rootMargin: "0px 0px -10% 0px" },
+    );
+
+    for (const el of document.querySelectorAll<HTMLElement>(".ws-reveal")) {
+      if (el.dataset["wsRevealMode"] === "stagger") {
+        const first = el.firstElementChild;
+        const items = el.children.length === 1 && first ? first.children : el.children;
+        [...items].forEach((item, i) => {
+          item.classList.add("ws-reveal-item");
+          (item as HTMLElement).style.setProperty("--ws-reveal-index", String(i));
+        });
+      }
+      if (el.getBoundingClientRect().top < window.innerHeight) show(el);
+      else observer.observe(el);
+    }
+    root.classList.add("ws-motion");
+  }
+</script>
+
+<style>
+  /* Only the entrance is animated: hiding is instant, so nothing fades out on load. */
+  .ws-reveal[data-ws-reveal-mode="single"].is-revealed,
+  .ws-reveal.is-revealed :global(.ws-reveal-item) {
+    transition:
+      opacity var(--ws-reveal-duration) var(--ws-reveal-ease),
+      transform var(--ws-reveal-duration) var(--ws-reveal-ease);
+    transition-delay: calc(var(--ws-reveal-index, 0) * var(--ws-reveal-stagger));
+  }
+
+  :global(html.ws-motion) .ws-reveal[data-ws-reveal-mode="single"]:not(.is-revealed),
+  :global(html.ws-motion) .ws-reveal:not(.is-revealed) :global(.ws-reveal-item) {
+    opacity: 0;
+    transform: translateY(var(--ws-reveal-distance)) scale(var(--ws-reveal-scale));
+  }
+
+  /* "fade" never moves content; "choreographed" uses the expressive curve. */
+  :global(html[data-ws-reveal="fade"].ws-motion) .ws-reveal:not(.is-revealed),
+  :global(html[data-ws-reveal="fade"].ws-motion)
+    .ws-reveal:not(.is-revealed)
+    :global(.ws-reveal-item) {
+    transform: none;
+  }
+  :global(html[data-ws-reveal="choreographed"])
+    .ws-reveal[data-ws-reveal-mode="single"].is-revealed,
+  :global(html[data-ws-reveal="choreographed"]) .ws-reveal.is-revealed :global(.ws-reveal-item) {
+    transition-timing-function: var(--ws-reveal-ease-expressive);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ws-reveal,
+    .ws-reveal :global(.ws-reveal-item) {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
+    }
+  }
+</style>

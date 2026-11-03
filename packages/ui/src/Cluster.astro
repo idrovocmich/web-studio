@@ -1,0 +1,44 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import { gapVar, type Gap } from "./types";
+
+interface Props extends HTMLAttributes<"div"> {
+  gap?: Gap;
+  justify?: "start" | "between" | "end";
+  align?: "start" | "center" | "baseline" | "end";
+  as?: "div" | "nav" | "ul";
+}
+
+const {
+  gap = "sm",
+  justify = "start",
+  align = "center",
+  as: Tag = "div",
+  class: className,
+  ...rest
+} = Astro.props;
+const justifyContent = justify === "between" ? "space-between" : `flex-${justify}`;
+---
+
+<Tag
+  class:list={["ws-cluster", className]}
+  style={`--ws-cluster-gap: ${gapVar(gap)}; --ws-cluster-justify: ${justifyContent}; --ws-cluster-align: ${align}`}
+  {...rest}
+>
+  <slot />
+</Tag>
+
+<style>
+  .ws-cluster {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: var(--ws-cluster-align);
+    justify-content: var(--ws-cluster-justify);
+    gap: var(--ws-cluster-gap);
+    margin: 0;
+    padding: 0;
+  }
+  ul.ws-cluster {
+    list-style: none;
+  }
+</style>

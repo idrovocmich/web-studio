@@ -5,7 +5,7 @@
  */
 export { brandSchema, directionSchema, GENERIC_FONT, oklchColor } from "./schema.js";
 export type { Brand, BrandInput, Direction } from "./schema.js";
-export { directionAttributes, resolveComposition } from "./composition.js";
+export { compositionAttributes, directionAttributes, resolveComposition } from "./composition.js";
 export type { Composition } from "./composition.js";
 export { BrandValidationError, formatPath } from "./errors.js";
 export type { BrandIssue } from "./errors.js";

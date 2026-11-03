@@ -279,6 +279,14 @@
         "style": "solid"
       }
     },
+    "heavy": {
+      "$type": "border",
+      "$value": {
+        "color": "{semantic.color.line.strong}",
+        "width": "{primitive.border.width.heavy}",
+        "style": "solid"
+      }
+    },
     "focus": {
       "$type": "border",
       "$value": {

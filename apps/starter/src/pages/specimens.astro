@@ -1,4 +1,14 @@
 ---
+import Button from "@idrovocmich/ui/Button.astro";
+import Card from "@idrovocmich/ui/Card.astro";
+import Cluster from "@idrovocmich/ui/Cluster.astro";
+import Eyebrow from "@idrovocmich/ui/Eyebrow.astro";
+import Field from "@idrovocmich/ui/Field.astro";
+import Frame from "@idrovocmich/ui/Frame.astro";
+import Heading from "@idrovocmich/ui/Heading.astro";
+import Link from "@idrovocmich/ui/Link.astro";
+import Separator from "@idrovocmich/ui/Separator.astro";
+import Text from "@idrovocmich/ui/Text.astro";
 import Base from "../layouts/Base.astro";
 import {
   brand,
@@ -354,16 +364,51 @@ const failing = contrast.filter((r) => !r.pass).length;
     </section>
 
     <section id="componentes" class="flex flex-col gap-md">
-      <h2 class="text-h2">Tokens de componente</h2>
-      <div class="flex flex-wrap items-center gap-md">
-        <button type="button" class="ws-button">
-          Botón primario
-        </button>
-        <a href="#componentes" class="ws-link">
-          Enlace
-        </a>
-        <input class="specimen-input" placeholder="Campo de texto" aria-label="Campo de ejemplo" />
+      <h2 class="text-h2">Componentes</h2>
+      <Text tone="secondary">
+        Cada componente sigue la composición de la marca. Las variantes fijas se muestran para
+        comparar; en un sitio se usa la de la marca ("brand").
+      </Text>
+      <Cluster gap="md">
+        <Button>Acción principal</Button>
+        <Button variant="secondary">Secundaria</Button>
+        <Button variant="quiet">Discreta</Button>
+        <Link href="#componentes">Enlace</Link>
+        <Link href="https://example.com" external>
+          Enlace externo
+        </Link>
+      </Cluster>
+      <div class="grid gap-md md:grid-cols-4">
+        {(["brand", "tinted", "raised", "outlined"] as const).map((surface) => (
+          <Card surface={surface}>
+            <Eyebrow>{surface}</Eyebrow>
+            <Heading level={3} size="h4">
+              Superficie
+            </Heading>
+            <Text size="small" tone="secondary">
+              Tratamiento de tarjeta.
+            </Text>
+          </Card>
+        ))}
       </div>
+      <div class="grid gap-md md:grid-cols-4">
+        {(["brand", "rect", "rounded", "organic"] as const).map((crop) => (
+          <Frame ratio="4/5" crop={crop} placeholder={`Recorte ${crop}`} />
+        ))}
+      </div>
+      {(["brand", "rule", "heavy-rule", "curve"] as const).map((variant) => (
+        <div>
+          <Text size="caption" tone="muted">
+            Separador {variant}
+          </Text>
+          <Separator variant={variant} />
+        </div>
+      ))}
+      <div class="grid gap-md md:grid-cols-2">
+        <Field label="Campo" name="especimen" hint="Texto de ayuda." />
+        <Field label="Campo con error" name="especimen-error" error="Mensaje de error." />
+      </div>
+      <h3 class="text-h4">Tokens de componente</h3>
       <div class="overflow-x-auto">
         <table class="w-full text-left text-small">
           <tbody>
@@ -475,16 +520,5 @@ const failing = contrast.filter((r) => !r.pass).length;
       grid-template-columns: repeat(var(--ws-layout-columns-wide), 1fr);
       gap: var(--ws-layout-gutter-wide);
     }
-  }
-  .specimen-input {
-    padding: var(--ws-space-2xs) var(--ws-space-xs);
-    border: var(--ws-input-border);
-    border-radius: var(--ws-input-radius);
-    background: var(--ws-input-bg);
-    color: var(--ws-input-fg);
-  }
-  .specimen-input:focus-visible {
-    outline: none;
-    border: var(--ws-input-border-focus);
   }
 </style>

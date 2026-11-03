@@ -1,0 +1,47 @@
+---
+interface Props {
+  /** "brand" follows the composition: space, rule, heavy rule or curve. */
+  variant?: "brand" | "space" | "rule" | "heavy-rule" | "curve";
+  class?: string;
+}
+
+const { variant = "brand", class: className } = Astro.props;
+---
+
+<div class:list={["ws-separator", className]} data-variant={variant} role="separator">
+  <svg viewBox="0 0 1200 24" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+    <path d="M0 12 C 300 0, 900 24, 1200 12" fill="none" vector-effect="non-scaling-stroke"></path>
+  </svg>
+</div>
+
+<style>
+  .ws-separator {
+    margin-block: var(--ws-separator-space);
+    border-top: var(--ws-separator-rule);
+  }
+  .ws-separator svg {
+    display: none;
+    width: 100%;
+    height: 1.5rem;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    color: var(--ws-separator-curve-color);
+  }
+
+  .ws-separator[data-variant="space"],
+  :global(:root[data-ws-separator="space"]) .ws-separator[data-variant="brand"] {
+    border-top: 0;
+  }
+  .ws-separator[data-variant="heavy-rule"],
+  :global(:root[data-ws-separator="heavy-rule"]) .ws-separator[data-variant="brand"] {
+    border-top: var(--ws-separator-heavy);
+  }
+  .ws-separator[data-variant="curve"],
+  :global(:root[data-ws-separator="curve"]) .ws-separator[data-variant="brand"] {
+    border-top: 0;
+  }
+  .ws-separator[data-variant="curve"] svg,
+  :global(:root[data-ws-separator="curve"]) .ws-separator[data-variant="brand"] svg {
+    display: block;
+  }
+</style>

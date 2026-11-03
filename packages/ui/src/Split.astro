@@ -1,0 +1,78 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import { gapVar, type Gap, type SplitRatio } from "./types";
+
+interface Props extends HTMLAttributes<"div"> {
+  /** "brand" uses the composition's split: 6/6, 7/5 or 8/4 depending on asymmetry. */
+  ratio?: SplitRatio;
+  /** Puts the first child on the right on wide screens (it still comes first when stacked). */
+  reverse?: boolean;
+  align?: "start" | "center" | "end" | "stretch";
+  gap?: Gap;
+  as?: "div" | "section" | "article";
+}
+
+const {
+  ratio = "brand",
+  reverse = false,
+  align = "start",
+  gap = "xl",
+  as: Tag = "div",
+  class: className,
+  ...rest
+} = Astro.props;
+---
+
+<Tag
+  class:list={["ws-split", className]}
+  data-ratio={ratio}
+  data-reverse={reverse ? "" : undefined}
+  style={`--ws-split-gap: ${gapVar(gap)}; --ws-split-align: ${align}`}
+  {...rest}
+>
+  <slot />
+</Tag>
+
+<style>
+  .ws-split {
+    --ws-split-main: 6fr;
+    --ws-split-aside: 6fr;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: var(--ws-split-align);
+    gap: var(--ws-split-gap);
+  }
+  /* Each column is a size container, so headings inside fit their column. */
+  .ws-split > :global(*) {
+    container-type: inline-size;
+  }
+  :global(:root[data-ws-split="7-5"]) .ws-split[data-ratio="brand"],
+  .ws-split[data-ratio="7-5"] {
+    --ws-split-main: 7fr;
+    --ws-split-aside: 5fr;
+  }
+  :global(:root[data-ws-split="8-4"]) .ws-split[data-ratio="brand"],
+  .ws-split[data-ratio="8-4"] {
+    --ws-split-main: 8fr;
+    --ws-split-aside: 4fr;
+  }
+  .ws-split[data-ratio="5-7"] {
+    --ws-split-main: 5fr;
+    --ws-split-aside: 7fr;
+  }
+  .ws-split[data-ratio="4-8"] {
+    --ws-split-main: 4fr;
+    --ws-split-aside: 8fr;
+  }
+  @media (width >= 48rem) {
+    .ws-split {
+      grid-template-columns: minmax(0, var(--ws-split-main)) minmax(0, var(--ws-split-aside));
+    }
+    .ws-split[data-reverse] {
+      grid-template-columns: minmax(0, var(--ws-split-aside)) minmax(0, var(--ws-split-main));
+    }
+    .ws-split[data-reverse] > :global(:first-child) {
+      order: 2;
+    }
+  }
+</style>

@@ -55,6 +55,9 @@ describe("fixtures", () => {
     expect(differences.length).toBeGreaterThanOrEqual(8);
     expect(a.attributes["data-ws-density"]).toBe("airy");
     expect(b.attributes["data-ws-density"]).toBe("dense");
+    expect(a.attributes["data-ws-split"]).toBe("6-6");
+    expect(b.attributes["data-ws-split"]).toBe("7-5");
+    expect(Object.keys(a.attributes)).toHaveLength(17);
   });
 });
 

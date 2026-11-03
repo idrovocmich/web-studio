@@ -214,7 +214,7 @@
     "weight": {
       "body": { "$type": "fontWeight", "$value": "{primitive.font.weight.regular}" },
       "strong": { "$type": "fontWeight", "$value": "{primitive.font.weight.semibold}" },
-      "heading": { "$type": "fontWeight", "$value": "{primitive.font.weight.bold}" }
+      "heading": { "$type": "fontWeight", "$value": "{primitive.font.weight.display}" }
     }
   },
   "text": {
@@ -301,6 +301,23 @@
       "enter": { "$type": "cubicBezier", "$value": "{primitive.easing.decelerate}" },
       "exit": { "$type": "cubicBezier", "$value": "{primitive.easing.accelerate}" },
       "expressive": { "$type": "cubicBezier", "$value": "{primitive.easing.spring}" }
+    },
+    "reveal": {
+      "distance": {
+        "$type": "dimension",
+        "$value": "{primitive.motion.distance}",
+        "$description": "How far elements travel when they enter (0 when the brand's motion is none)."
+      },
+      "stagger": {
+        "$type": "duration",
+        "$value": "{primitive.motion.stagger}",
+        "$description": "Delay between siblings in a staggered entrance."
+      },
+      "scale": {
+        "$type": "number",
+        "$value": "{primitive.motion.scale}",
+        "$description": "Starting scale of an entering element."
+      }
     }
   },
   "breakpoint": {

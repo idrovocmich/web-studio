@@ -1,6 +1,6 @@
 import data from "../generated/brand-data.json";
 
-export const { brand, light, dark, contrast } = data;
+export const { brand, light, dark, contrast, composition, attributes } = data;
 
 export type SpecimenToken = (typeof light)[number];
 

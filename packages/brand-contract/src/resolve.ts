@@ -6,6 +6,7 @@ import {
   type EngineOptions,
   type TokenTree,
 } from "@idrovocmich/tokens";
+import { directionAttributes, resolveComposition, type Composition } from "./composition.js";
 import { BrandValidationError, issuesFromZod, spanishErrors, type BrandIssue } from "./errors.js";
 import { brandSchema, type Brand } from "./schema.js";
 
@@ -42,14 +43,22 @@ export function brandToEngineOptions(brand: Brand): EngineOptions {
       Object.entries(brand.typography.scale).filter(([, v]) => v !== undefined),
     );
   }
-  if (brand.style?.shape) options.shape = brand.style.shape;
-  if (brand.style?.motion) options.motion = brand.style.motion;
-  if (brand.style?.elevation) options.elevation = brand.style.elevation;
+  const { density, contrast, shape, typePersonality, motion, elevation } = brand.direction;
+  options.direction = {
+    density,
+    contrast,
+    shape,
+    typePersonality,
+    motion,
+    ...(elevation && { elevation }),
+  };
+  options.displayWeights = display.weights;
   return options;
 }
 
 const CONTRAST_HINT: Record<string, string> = {
-  primary: "ajusta la luminosidad (l) de palette.primary",
+  primary:
+    "ajusta la luminosidad (l) de palette.primary: el botón principal usa ese color exacto, así que debe contrastar con el fondo y con su texto",
   accent: "ajusta la luminosidad (l) o el croma (c) de palette.accent",
   neutral: "baja el croma (c) de palette.neutral",
   success: "ajusta palette.success",
@@ -76,6 +85,10 @@ export interface ResolvedBrand {
     theme: string;
   };
   contrast: ContrastResult[];
+  /** Structural decisions the sections follow for this brand. */
+  composition: Composition;
+  /** `data-ws-*` attributes to put on `<html>`. */
+  attributes: Record<string, string>;
 }
 
 /**
@@ -108,5 +121,7 @@ export async function resolveBrand(input: unknown): Promise<ResolvedBrand> {
     tokens,
     css: { tokens: built.tokensCss, theme: built.themeCss },
     contrast: report.contrast,
+    composition: resolveComposition(result.brand.direction),
+    attributes: directionAttributes(result.brand.direction),
   };
 }

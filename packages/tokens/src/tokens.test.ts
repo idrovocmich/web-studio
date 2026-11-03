@@ -6,8 +6,11 @@ import {
   createTokens,
   cssVarName,
   generateRamp,
+  getToken,
+  headingWeight,
   oklch,
   RAMP_STEPS,
+  resolveDirectionOptions,
   validateTiers,
   validateTokens,
   type TokenTree,
@@ -173,12 +176,113 @@ describe("buildTokens (Style Dictionary pipeline)", () => {
     expect(cssVarName(["component", "button", "bg"])).toBe("--ws-button-bg");
   });
 
-  it("changes output when brand options change", async () => {
-    const a = await buildTokens(createTokens({ shape: "sharp", motion: "snappy" }));
-    const b = await buildTokens(createTokens({ shape: "round", motion: "calm" }));
+  it("changes output when the art direction changes", async () => {
+    const a = await buildTokens(
+      createTokens({ direction: { shape: "straight", motion: "none", density: "dense" } }),
+    );
+    const b = await buildTokens(
+      createTokens({ direction: { shape: "organic", motion: "expressive", density: "airy" } }),
+    );
     expect(a.tokensCss).toContain("--ws-ref-radius-md: 0.125rem;");
-    expect(b.tokensCss).toContain("--ws-ref-radius-md: 0.875rem;");
-    expect(a.tokensCss).toContain("--ws-ref-duration-fast: 84ms;");
-    expect(b.tokensCss).toContain("--ws-ref-duration-fast: 180ms;");
+    expect(b.tokensCss).toContain("--ws-ref-radius-md: 1.25rem;");
+    expect(a.tokensCss).toContain("--ws-ref-duration-fast: 72ms;");
+    expect(b.tokensCss).toContain("--ws-ref-duration-fast: 168ms;");
+    expect(a.tokensCss).toContain("--ws-ref-space-32: 6rem;");
+    expect(b.tokensCss).toContain("--ws-ref-space-32: 10.4rem;");
+  });
+});
+
+const primitiveValue = (tree: TokenTree, path: string): unknown =>
+  getToken(tree, `primitive.${path}`)?.$value;
+const semanticRef = (tree: TokenTree, path: string): unknown =>
+  getToken(tree, `semantic.${path}`)?.$value;
+
+describe("art direction", () => {
+  it("density scales section rhythm and the grid, not the small steps", () => {
+    const airy = createTokens({ direction: { density: "airy" } });
+    const dense = createTokens({ direction: { density: "dense" } });
+    expect(primitiveValue(airy, "space.4")).toEqual(primitiveValue(dense, "space.4"));
+    expect(primitiveValue(airy, "space.32")).toEqual({ value: 10.4, unit: "rem" });
+    expect(primitiveValue(dense, "space.32")).toEqual({ value: 6, unit: "rem" });
+    expect(primitiveValue(dense, "grid.max-width")).toEqual({ value: 88, unit: "rem" });
+  });
+
+  it("contrast sets the default type ratio and line strength", () => {
+    const soft = createTokens({ direction: { contrast: "soft" } });
+    const stark = createTokens({ direction: { contrast: "stark" } });
+    const max = (tree: TokenTree) =>
+      (getToken(tree, "primitive.font.size.5xl")?.$extensions?.["com.idrovocmich.ws"]?.fluid?.max
+        .value ?? 0) as number;
+    expect(max(stark)).toBeGreaterThan(max(soft) * 1.5);
+    expect(semanticRef(soft, "color.line.strong")).toBe("{primitive.color.neutral.500}");
+    expect(semanticRef(stark, "color.line.strong")).toBe("{primitive.color.neutral.800}");
+    expect(primitiveValue(stark, "border.width.thin")).toEqual({ value: 1.5, unit: "px" });
+  });
+
+  it("type personality snaps the heading weight to the weights the brand ships", () => {
+    expect(headingWeight("expressive", [400, 600])).toBe(600);
+    expect(headingWeight("editorial", [300, 500])).toBe(500);
+    expect(headingWeight("technical")).toBe(600);
+    const tree = createTokens({
+      direction: { typePersonality: "expressive" },
+      displayWeights: [500, 800],
+    });
+    expect(primitiveValue(tree, "font.weight.display")).toBe(800);
+    expect(semanticRef(tree, "font.weight.heading")).toBe("{primitive.font.weight.display}");
+  });
+
+  it("motion none removes entrance distance and stagger", () => {
+    const tree = createTokens({ direction: { motion: "none" } });
+    expect(primitiveValue(tree, "motion.distance")).toEqual({ value: 0, unit: "rem" });
+    expect(primitiveValue(tree, "motion.stagger")).toEqual({ value: 0, unit: "ms" });
+  });
+
+  it("stark brands default to flat elevation", () => {
+    expect(resolveDirectionOptions({ contrast: "stark" }).elevation).toBe("flat");
+    expect(resolveDirectionOptions({ contrast: "stark", elevation: "dramatic" }).elevation).toBe(
+      "dramatic",
+    );
+  });
+
+  it("every direction combination passes tier rules and WCAG AA", () => {
+    for (const density of ["airy", "dense"] as const)
+      for (const contrast of ["soft", "balanced", "stark"] as const)
+        for (const shape of ["straight", "organic"] as const)
+          for (const typePersonality of ["editorial", "technical", "warm", "expressive"] as const) {
+            const report = validateTokens(
+              createTokens({ direction: { density, contrast, shape, typePersonality } }),
+            );
+            expect(report.ok, `${density}/${contrast}/${shape}/${typePersonality}`).toBe(true);
+          }
+  });
+});
+
+describe("exact brand color", () => {
+  it("the primary action uses the exact brand color, wherever it lands in the ramp", () => {
+    for (const [l, step] of [
+      [0.45, 700],
+      [0.53, 600],
+      [0.29, 900],
+    ] as const) {
+      const tree = createTokens({ palette: { primary: { l, c: 0.08, h: 30 } } });
+      expect(semanticRef(tree, "color.action.primary")).toBe(`{primitive.color.primary.${step}}`);
+      expect(primitiveValue(tree, `color.primary.${step}`)).toEqual(oklch(l, 0.08, 30));
+      expect(validateTokens(tree).ok, `l=${l}`).toBe(true);
+    }
+  });
+
+  it("puts dark text on light brand colors and moves hover away from the text", () => {
+    const tree = createTokens({ palette: { primary: { l: 0.45, c: 0.12, h: 30 } } });
+    expect(semanticRef(tree, "color.action.on-primary")).toBe("{primitive.color.neutral.50}");
+    expect(semanticRef(tree, "color.action.primary-hover")).toBe("{primitive.color.primary.800}");
+  });
+
+  it("rejects a brand color too light for the page background", () => {
+    const report = validateTokens(
+      createTokens({ palette: { primary: { l: 0.85, c: 0.1, h: 30 } } }),
+    );
+    expect(report.contrastFailures.map((r) => r.foreground)).toContain(
+      "semantic.color.action.primary",
+    );
   });
 });

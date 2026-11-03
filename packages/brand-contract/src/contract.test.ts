@@ -1,7 +1,13 @@
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { BrandValidationError, resolveBrand, validateBrand } from "./index.js";
+import {
+  BrandValidationError,
+  resolveBrand,
+  resolveComposition,
+  validateBrand,
+  type Direction,
+} from "./index.js";
 import { loadBrand } from "./node.js";
 
 const fixture = (id: string): string =>
@@ -31,9 +37,96 @@ describe("fixtures", () => {
       "--ws-ref-font-family-display",
       "--ws-ref-radius-md",
       "--ws-ref-duration-fast",
+      "--ws-ref-space-32",
+      "--ws-ref-font-leading-tight",
     ]) {
       expect(pick(a.css.tokens, name), name).not.toBe(pick(b.css.tokens, name));
     }
+  });
+
+  it("produce structurally different compositions", async () => {
+    const [a, b] = await Promise.all([
+      loadBrand(fixture("casa-terracota")),
+      loadBrand(fixture("voltio-labs")),
+    ]);
+    const differences = (Object.keys(a.composition) as (keyof typeof a.composition)[]).filter(
+      (key) => JSON.stringify(a.composition[key]) !== JSON.stringify(b.composition[key]),
+    );
+    expect(differences.length).toBeGreaterThanOrEqual(8);
+    expect(a.attributes["data-ws-density"]).toBe("airy");
+    expect(b.attributes["data-ws-density"]).toBe("dense");
+  });
+});
+
+describe("art direction", () => {
+  const base: Direction = {
+    density: "balanced",
+    contrast: "balanced",
+    shape: "rounded",
+    typePersonality: "editorial",
+    motion: "subtle",
+    signature: "Una decisión memorable de prueba.",
+  };
+
+  it("requires the direction block with a Spanish explanation", async () => {
+    const brand = await readFixture("voltio-labs");
+    delete brand["direction"];
+    const result = validateBrand(brand);
+    expect(!result.ok && result.issues.find((i) => i.path === "direction")?.message).toContain(
+      "Falta la dirección de arte",
+    );
+  });
+
+  it("explains invalid control values", async () => {
+    const brand = await readFixture("voltio-labs");
+    const result = validateBrand({ ...brand, direction: { ...base, density: "compact" } });
+    expect(!result.ok && result.issues[0]).toMatchObject({
+      path: "direction.density",
+      message: expect.stringContaining('"airy", "balanced", "dense"'),
+    });
+  });
+
+  it("points brands still using style to direction", async () => {
+    const brand = await readFixture("voltio-labs");
+    const result = validateBrand({ ...brand, style: { shape: "sharp" } });
+    expect(!result.ok && result.issues[0]?.message).toContain('usa "direction"');
+  });
+
+  it("never centers headings by default and always keeps the signature", () => {
+    for (const typePersonality of ["editorial", "technical", "warm", "expressive"] as const) {
+      const composition = resolveComposition({ ...base, typePersonality });
+      expect(composition.headingAlign).not.toBe("center");
+      expect(composition.signature).toBe(base.signature);
+    }
+    expect(resolveComposition({ ...base, motion: "none" }).reveal).toBe("none");
+  });
+});
+
+describe("anti-generic rules", () => {
+  it("rejects Inter, Roboto and Arial as main fonts without a reason", async () => {
+    const brand = await readFixture("voltio-labs");
+    const typography = brand["typography"] as Record<string, Record<string, unknown>>;
+    const withBody = (family: string, reason?: string) =>
+      validateBrand({
+        ...brand,
+        typography: {
+          ...typography,
+          body: { ...typography["body"], family },
+          ...(reason && { genericFontReason: reason }),
+        },
+      });
+
+    for (const family of ["Inter", "Roboto", "Arial", "Inter Variable"]) {
+      const result = withBody(family);
+      expect(!result.ok && result.issues[0]).toMatchObject({
+        path: "typography.body.family",
+        message: expect.stringContaining("fuente genérica"),
+      });
+    }
+    expect(withBody("Roboto Mono").ok).toBe(true);
+    expect(
+      withBody("Inter", "La marca ya usa Inter en su producto y la web debe ser coherente.").ok,
+    ).toBe(true);
   });
 });
 

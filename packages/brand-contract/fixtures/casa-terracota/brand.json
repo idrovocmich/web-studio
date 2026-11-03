@@ -30,7 +30,7 @@
       "source": { "kind": "google" }
     },
     "pairing": "Una serif con carácter artesanal para titulares, equilibrada por una sans humanista muy legible en textos largos.",
-    "scale": { "baseMin": 1.0625, "baseMax": 1.1875, "ratioMin": 1.2, "ratioMax": 1.333 }
+    "scale": { "baseMin": 1.0625, "baseMax": 1.1875 }
   },
   "logos": {
     "primary": { "file": "logos/primary.svg", "alt": "Casa Terracota" },
@@ -71,5 +71,13 @@
     "Deformar o rotar el símbolo",
     "Usar mayúsculas sostenidas en titulares"
   ],
-  "style": { "shape": "round", "motion": "calm", "elevation": "soft" }
+  "direction": {
+    "density": "airy",
+    "contrast": "soft",
+    "shape": "organic",
+    "typePersonality": "warm",
+    "motion": "subtle",
+    "signature": "Fotografías recortadas en forma de arco que interrumpen el texto, como ventanas a la cocina.",
+    "elevation": "soft"
+  }
 }

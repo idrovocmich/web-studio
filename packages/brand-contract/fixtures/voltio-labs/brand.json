@@ -30,7 +30,7 @@
       "usage": "Código, cifras y etiquetas técnicas."
     },
     "pairing": "Una grotesca geométrica con rasgos técnicos para titulares y una sans neutra para lectura densa; la mono refuerza el carácter técnico.",
-    "scale": { "baseMin": 0.9375, "baseMax": 1, "ratioMin": 1.125, "ratioMax": 1.2 }
+    "scale": { "baseMin": 0.9375, "baseMax": 1 }
   },
   "logos": {
     "primary": { "file": "logos/primary.svg", "alt": "Voltio Labs" },
@@ -71,5 +71,13 @@
     "Poner el verde de acento como fondo de bloques de texto",
     "Redondear las esquinas de las tarjetas"
   ],
-  "style": { "shape": "sharp", "motion": "snappy", "elevation": "flat" }
+  "direction": {
+    "density": "dense",
+    "contrast": "stark",
+    "shape": "straight",
+    "typePersonality": "technical",
+    "motion": "expressive",
+    "signature": "Cifras monumentales en mono que ocupan toda la anchura y marcan el ritmo de la página.",
+    "elevation": "flat"
+  }
 }

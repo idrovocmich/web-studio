@@ -1,3 +1,4 @@
+import { cssVarName } from "./build.js";
 import { checkContrast, type ContrastResult } from "./contrast.js";
 import { flatten, getToken, isReference, referencesIn, wsExtensions } from "./tree.js";
 import type { Tier, TokenTree, TokenValue } from "./types.js";
@@ -34,6 +35,20 @@ function hasLiteral(value: TokenValue): boolean {
 
 export function validateTiers(tree: TokenTree): TierIssue[] {
   const issues: TierIssue[] = [];
+  // Two tokens with the same CSS name would overwrite (or reference) each other in the output.
+  const byCssName = new Map<string, string>();
+  for (const { id } of flatten(tree)) {
+    const name = cssVarName(id.split("."));
+    const other = byCssName.get(name);
+    if (other) {
+      issues.push({
+        token: id,
+        message: `genera la misma variable CSS (${name}) que {${other}}. Cambia el nombre de uno de los dos.`,
+      });
+    } else {
+      byCssName.set(name, id);
+    }
+  }
   for (const { id, tier, token } of flatten(tree)) {
     const ext = wsExtensions(token);
     const refs = [

@@ -1,0 +1,52 @@
+---
+import type { HTMLAttributes } from "astro/types";
+
+interface Props extends HTMLAttributes<"a"> {
+  href: string;
+  /** Opens in a new tab, adds rel="noopener noreferrer" and tells screen readers. */
+  external?: boolean;
+  /** Announced after the link text for external links. */
+  externalLabel?: string;
+}
+
+const {
+  external = false,
+  externalLabel = "(se abre en una pestaña nueva)",
+  class: className,
+  ...rest
+} = Astro.props;
+---
+
+<a
+  class:list={["ws-link", className]}
+  {...(external && { target: "_blank", rel: "noopener noreferrer" })}
+  {...rest}
+>
+  <slot />
+  {external && <span class="ws-visually-hidden"> {externalLabel}</span>}
+</a>
+
+<style>
+  .ws-link {
+    color: var(--ws-link-color);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
+  .ws-link:hover {
+    color: var(--ws-link-color-hover);
+    text-decoration-thickness: 2px;
+  }
+  .ws-link:focus-visible {
+    outline: var(--ws-link-focus);
+    outline-offset: 2px;
+  }
+  .ws-visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+</style>

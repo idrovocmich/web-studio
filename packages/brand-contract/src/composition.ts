@@ -102,3 +102,24 @@ export function directionAttributes(direction: Direction): Record<string, string
     "data-ws-motion": direction.motion,
   };
 }
+
+/**
+ * `data-ws-*` attributes for every structural decision, so component CSS can follow the
+ * composition without duplicating `resolveComposition()`.
+ */
+export function compositionAttributes(composition: Composition): Record<string, string> {
+  return {
+    "data-ws-rhythm": composition.rhythm,
+    "data-ws-split": composition.split.join("-"),
+    "data-ws-asymmetry": composition.asymmetry,
+    "data-ws-breakout": String(composition.breakout),
+    "data-ws-heading-scale": composition.headingScale,
+    "data-ws-heading-align": composition.headingAlign,
+    "data-ws-separator": composition.separator,
+    "data-ws-surface": composition.surface,
+    "data-ws-media": composition.media,
+    "data-ws-eyebrow": composition.eyebrow,
+    "data-ws-numerals": composition.numerals,
+    "data-ws-reveal": composition.reveal,
+  };
+}

@@ -1,5 +1,16 @@
 # @idrovocmich/brand-contract
 
+## 0.3.0
+
+### Minor Changes
+
+- `resolveBrand().attributes` now also carries the composition as `data-ws-*` attributes (`rhythm`, `split`, `asymmetry`, `breakout`, `heading-scale`, `heading-align`, `separator`, `surface`, `media`, `eyebrow`, `numerals`, `reveal`), so component CSS follows `resolveComposition()` without duplicating it. New `compositionAttributes()` export.
+
+### Patch Changes
+
+- Updated dependencies
+  - @idrovocmich/tokens@0.3.0
+
 ## 0.2.0
 
 ### Minor Changes

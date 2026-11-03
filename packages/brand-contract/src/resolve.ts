@@ -6,7 +6,12 @@ import {
   type EngineOptions,
   type TokenTree,
 } from "@idrovocmich/tokens";
-import { directionAttributes, resolveComposition, type Composition } from "./composition.js";
+import {
+  compositionAttributes,
+  directionAttributes,
+  resolveComposition,
+  type Composition,
+} from "./composition.js";
 import { BrandValidationError, issuesFromZod, spanishErrors, type BrandIssue } from "./errors.js";
 import { brandSchema, type Brand } from "./schema.js";
 
@@ -87,7 +92,7 @@ export interface ResolvedBrand {
   contrast: ContrastResult[];
   /** Structural decisions the sections follow for this brand. */
   composition: Composition;
-  /** `data-ws-*` attributes to put on `<html>`. */
+  /** `data-ws-*` attributes (direction and composition) to put on `<html>`. */
   attributes: Record<string, string>;
 }
 
@@ -116,12 +121,16 @@ export async function resolveBrand(input: unknown): Promise<ResolvedBrand> {
   }
 
   const built = await buildTokens(tokens);
+  const composition = resolveComposition(result.brand.direction);
   return {
     brand: result.brand,
     tokens,
     css: { tokens: built.tokensCss, theme: built.themeCss },
     contrast: report.contrast,
-    composition: resolveComposition(result.brand.direction),
-    attributes: directionAttributes(result.brand.direction),
+    composition,
+    attributes: {
+      ...directionAttributes(result.brand.direction),
+      ...compositionAttributes(composition),
+    },
   };
 }

@@ -1,0 +1,52 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import type { Surface } from "./types";
+
+interface Props extends HTMLAttributes<"article"> {
+  /** "brand" follows the composition: tinted (soft), raised (balanced) or outlined (stark). */
+  surface?: Surface;
+  as?: "article" | "div" | "li" | "section";
+}
+
+const { surface = "brand", as: Tag = "article", class: className, ...rest } = Astro.props;
+---
+
+<Tag class:list={["ws-card", className]} data-surface={surface} {...rest}>
+  <slot />
+</Tag>
+
+<style>
+  .ws-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ws-card-gap);
+    padding: var(--ws-card-padding);
+    border: var(--ws-card-border);
+    border-radius: var(--ws-card-radius);
+    background: var(--ws-card-bg);
+    color: var(--ws-card-fg);
+    box-shadow: var(--ws-card-shadow);
+  }
+
+  .ws-card[data-surface="tinted"],
+  :global(:root[data-ws-surface="tinted"]) .ws-card[data-surface="brand"] {
+    border-color: transparent;
+    box-shadow: none;
+  }
+  .ws-card[data-surface="outlined"],
+  :global(:root[data-ws-surface="outlined"]) .ws-card[data-surface="brand"] {
+    border: var(--ws-card-border-strong);
+    background: var(--ws-card-bg-plain);
+    box-shadow: none;
+  }
+  .ws-card[data-surface="raised"],
+  :global(:root[data-ws-surface="raised"]) .ws-card[data-surface="brand"] {
+    background: var(--ws-card-bg-plain);
+  }
+  .ws-card[data-surface="plain"] {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+</style>

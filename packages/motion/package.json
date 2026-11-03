@@ -2,23 +2,25 @@
   "name": "@idrovocmich/motion",
   "version": "0.0.0",
   "private": true,
-  "description": "Motion primitives and choreography presets driven by motion tokens.",
+  "description": "Entrance choreography driven by motion tokens and the brand's motion intensity; off under prefers-reduced-motion.",
   "license": "MIT",
+  "author": "idrovocmich",
   "type": "module",
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    }
+    "./*.astro": "./src/*.astro"
   },
   "files": [
-    "dist"
+    "src"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "astro check"
+  },
+  "peerDependencies": {
+    "astro": "catalog:"
   },
   "devDependencies": {
+    "@astrojs/check": "catalog:",
+    "astro": "catalog:",
     "typescript": "catalog:"
   }
 }

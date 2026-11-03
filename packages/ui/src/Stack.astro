@@ -1,0 +1,35 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import { gapVar, type Gap } from "./types";
+
+interface Props extends HTMLAttributes<"div"> {
+  gap?: Gap;
+  align?: "start" | "center" | "end" | "stretch";
+  as?: "div" | "section" | "header" | "footer" | "article" | "ul" | "ol";
+}
+
+const { gap = "md", align = "stretch", as: Tag = "div", class: className, ...rest } = Astro.props;
+---
+
+<Tag
+  class:list={["ws-stack", className]}
+  style={`--ws-stack-gap: ${gapVar(gap)}; --ws-stack-align: ${align}`}
+  {...rest}
+>
+  <slot />
+</Tag>
+
+<style>
+  .ws-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: var(--ws-stack-align);
+    gap: var(--ws-stack-gap);
+    margin: 0;
+    padding: 0;
+  }
+  ul.ws-stack,
+  ol.ws-stack {
+    list-style: none;
+  }
+</style>

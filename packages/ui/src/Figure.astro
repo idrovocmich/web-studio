@@ -1,0 +1,46 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import Frame from "./Frame.astro";
+import type { Crop, Ratio } from "./types";
+
+interface Props extends HTMLAttributes<"figure"> {
+  caption?: string;
+  ratio?: Ratio;
+  crop?: Crop;
+  placeholder?: string;
+}
+
+const { caption, ratio, crop, placeholder, class: className, ...rest } = Astro.props;
+const frame = {
+  ...(ratio && { ratio }),
+  ...(crop && { crop }),
+  ...(placeholder && { placeholder }),
+};
+---
+
+<figure class:list={["ws-figure", className]} {...rest}>
+  <Frame {...frame}>
+    <slot />
+  </Frame>
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>
+
+<style>
+  .ws-figure {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ws-flow-gap-xs);
+    margin: 0;
+  }
+  figcaption {
+    color: var(--ws-frame-caption-color);
+    font-size: var(--ws-text-size-small);
+    line-height: var(--ws-text-leading);
+  }
+  :global(:root[data-ws-eyebrow="mono-caps"]) figcaption {
+    font-family: var(--ws-eyebrow-font-mono);
+  }
+  :global(:root[data-ws-eyebrow="italic"]) figcaption {
+    font-style: italic;
+  }
+</style>

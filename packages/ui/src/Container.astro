@@ -1,0 +1,37 @@
+---
+import type { HTMLAttributes } from "astro/types";
+
+interface Props extends HTMLAttributes<"div"> {
+  /** "content" follows the brand's density; "prose" keeps a reading measure. */
+  width?: "content" | "prose" | "full";
+  as?: "div" | "section" | "header" | "footer" | "main" | "article" | "nav";
+}
+
+const { width = "content", as: Tag = "div", class: className, ...rest } = Astro.props;
+---
+
+<Tag class:list={["ws-container", className]} data-width={width} {...rest}>
+  <slot />
+</Tag>
+
+<style>
+  .ws-container {
+    box-sizing: border-box;
+    container-type: inline-size;
+    width: 100%;
+    max-width: var(--ws-flow-container);
+    margin-inline: auto;
+    padding-inline: var(--ws-flow-margin-compact);
+  }
+  .ws-container[data-width="prose"] {
+    max-width: calc(var(--ws-flow-container-prose) + 2 * var(--ws-flow-margin-wide));
+  }
+  .ws-container[data-width="full"] {
+    max-width: none;
+  }
+  @media (width >= 48rem) {
+    .ws-container {
+      padding-inline: var(--ws-flow-margin-wide);
+    }
+  }
+</style>

@@ -1,0 +1,135 @@
+---
+interface Option {
+  value: string;
+  label: string;
+}
+
+interface Props {
+  label: string;
+  name: string;
+  type?: "text" | "email" | "tel" | "url" | "number" | "search" | "textarea" | "select";
+  id?: string;
+  value?: string;
+  placeholder?: string;
+  hint?: string;
+  /** Error message; marks the control invalid and is announced with it. */
+  error?: string;
+  required?: boolean;
+  /** Visible marker next to required labels. */
+  requiredLabel?: string;
+  autocomplete?: string;
+  /** Options for type="select". */
+  options?: Option[];
+  rows?: number;
+  class?: string;
+}
+
+const {
+  label,
+  name,
+  type = "text",
+  id = `ws-field-${name}`,
+  value,
+  placeholder,
+  hint,
+  error,
+  required = false,
+  requiredLabel = "obligatorio",
+  autocomplete,
+  options = [],
+  rows = 5,
+  class: className,
+} = Astro.props;
+
+const hintId = hint ? `${id}-hint` : undefined;
+const errorId = error ? `${id}-error` : undefined;
+const control = {
+  id,
+  name,
+  required,
+  "aria-invalid": error ? ("true" as const) : undefined,
+  "aria-describedby": [hintId, errorId].filter(Boolean).join(" ") || undefined,
+  ...(autocomplete && { autocomplete }),
+};
+---
+
+<div class:list={["ws-field", className]} data-invalid={error ? "" : undefined}>
+  <label for={id}>
+    {label}
+    {required && <span class="ws-field-required">({requiredLabel})</span>}
+  </label>
+  {hint && (
+    <p id={hintId} class="ws-field-hint">
+      {hint}
+    </p>
+  )}
+  {type === "textarea" ? (
+    <textarea {...control} rows={rows} placeholder={placeholder} set:text={value ?? ""} />
+  ) : type === "select" ? (
+    <select {...control}>
+      {options.map((option) => (
+        <option value={option.value} selected={option.value === value}>
+          {option.label}
+        </option>
+      ))}
+    </select>
+  ) : (
+    <input {...control} type={type} value={value} placeholder={placeholder} />
+  )}
+  {error && (
+    <p id={errorId} class="ws-field-error">
+      {error}
+    </p>
+  )}
+</div>
+
+<style>
+  .ws-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ws-field-gap);
+  }
+  label {
+    color: var(--ws-field-label-color);
+    font-weight: var(--ws-field-label-weight);
+  }
+  .ws-field-required {
+    margin-inline-start: 0.35em;
+    color: var(--ws-field-hint-color);
+    font-weight: 400;
+  }
+  .ws-field-hint,
+  .ws-field-error {
+    margin: 0;
+    font-size: var(--ws-field-hint-size);
+  }
+  .ws-field-hint {
+    color: var(--ws-field-hint-color);
+  }
+  .ws-field-error {
+    color: var(--ws-field-error-color);
+    font-weight: var(--ws-field-label-weight);
+  }
+  input,
+  textarea,
+  select {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 2.75rem;
+    padding: var(--ws-input-padding-y) var(--ws-input-padding-x);
+    border: var(--ws-input-border);
+    border-radius: var(--ws-input-radius);
+    background: var(--ws-input-bg);
+    color: var(--ws-input-fg);
+    font: inherit;
+  }
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: var(--ws-input-border-focus);
+    outline-offset: 1px;
+  }
+  .ws-field[data-invalid] :is(input, textarea, select) {
+    border-color: var(--ws-field-error-color);
+  }
+</style>

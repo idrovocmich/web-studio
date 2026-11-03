@@ -1,5 +1,11 @@
 # @idrovocmich/tokens
 
+## 0.3.0
+
+### Minor Changes
+
+- Component tokens for the `@idrovocmich/ui` and `@idrovocmich/motion` components: `heading`, `text`, `eyebrow`, `field`, `flow` (gaps, container, margins, gutters), `separator`, `frame` and `reveal`, plus new `button` (secondary, quiet, gap, focus), `card` (plain and strong border, gap), `input` (padding) and `link` (focus) tokens, and `semantic.border.heavy`. `validateTiers()` now rejects two tokens that would produce the same CSS variable (for example a component `layout.margin-compact` and the semantic `layout.margin.compact`).
+
 ## 0.2.0
 
 ### Minor Changes

@@ -1,0 +1,86 @@
+---
+import type { HTMLAttributes } from "astro/types";
+
+interface Common {
+  /** One primary action per view; "quiet" for low-emphasis actions next to it. */
+  variant?: "primary" | "secondary" | "quiet";
+  class?: string;
+}
+type AsLink = Common & Omit<HTMLAttributes<"a">, "class"> & { href: string };
+type AsButton = Common &
+  Omit<HTMLAttributes<"button">, "class"> & {
+    href?: undefined;
+    type?: "button" | "submit" | "reset";
+  };
+type Props = AsLink | AsButton;
+
+const { variant = "primary", class: className, ...rest } = Astro.props;
+const classes = ["ws-button", className];
+---
+
+{"href" in rest && rest.href !== undefined ? (
+  <a class:list={classes} data-variant={variant} {...(rest as HTMLAttributes<"a">)}>
+    <slot />
+  </a>
+) : (
+  <button
+    class:list={classes}
+    data-variant={variant}
+    type="button"
+    {...(rest as HTMLAttributes<"button">)}
+  >
+    <slot />
+  </button>
+)}
+
+<style>
+  .ws-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--ws-button-gap);
+    min-height: 2.75rem;
+    padding: var(--ws-button-padding-y) var(--ws-button-padding-x);
+    border: 0;
+    border-radius: var(--ws-button-radius);
+    background: var(--ws-button-bg);
+    color: var(--ws-button-fg);
+    font: inherit;
+    font-weight: var(--ws-button-font-weight);
+    line-height: 1.2;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      background-color var(--ws-button-duration) var(--ws-button-ease),
+      color var(--ws-button-duration) var(--ws-button-ease);
+  }
+  .ws-button:hover {
+    background: var(--ws-button-bg-hover);
+  }
+  .ws-button:focus-visible {
+    outline: var(--ws-button-focus);
+    outline-offset: 2px;
+  }
+
+  .ws-button[data-variant="secondary"] {
+    border: var(--ws-button-secondary-border);
+    background: transparent;
+    color: var(--ws-button-secondary-fg);
+  }
+  .ws-button[data-variant="secondary"]:hover {
+    border-color: currentColor;
+    background: transparent;
+  }
+
+  .ws-button[data-variant="quiet"] {
+    padding-inline: 0;
+    background: transparent;
+    color: var(--ws-button-quiet-fg);
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
+  }
+  .ws-button[data-variant="quiet"]:hover {
+    background: transparent;
+    text-decoration-thickness: 2px;
+  }
+</style>

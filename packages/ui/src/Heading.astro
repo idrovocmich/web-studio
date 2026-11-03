@@ -1,0 +1,82 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import type { HeadingSize } from "./types";
+
+interface Props extends HTMLAttributes<"h2"> {
+  level?: 1 | 2 | 3 | 4 | 5 | 6;
+  /** Visual size, independent of the outline level. Defaults from the level. */
+  size?: HeadingSize;
+  /** "brand" follows the composition: start, or offset one column for strongly asymmetric brands. */
+  align?: "brand" | "start";
+}
+
+const DEFAULT_SIZE: Record<number, HeadingSize> = {
+  1: "h1",
+  2: "h2",
+  3: "h3",
+  4: "h4",
+  5: "h4",
+  6: "h4",
+};
+
+const { level = 2, size, align = "brand", class: className, ...rest } = Astro.props;
+const Tag = `h${level}` as const;
+---
+
+<Tag
+  class:list={["ws-heading", className]}
+  data-size={size ?? DEFAULT_SIZE[level]}
+  data-align={align}
+  {...rest}
+>
+  <slot />
+</Tag>
+
+<style>
+  .ws-heading {
+    margin: 0;
+    color: var(--ws-heading-color);
+    font-family: var(--ws-heading-font-family);
+    font-weight: var(--ws-heading-font-weight);
+    line-height: var(--ws-heading-leading);
+    letter-spacing: var(--ws-heading-tracking);
+    text-wrap: balance;
+  }
+  .ws-heading[data-size="display"] {
+    --ws-heading-scale: 1;
+    max-width: 18ch;
+    /* Never wider than its column: 15cqi keeps a ~10-letter word on one line. */
+    font-size: min(calc(var(--ws-heading-size-display) * var(--ws-heading-scale)), 15cqi);
+    line-height: var(--ws-heading-leading-display);
+  }
+  .ws-heading[data-size="h1"] {
+    max-width: 24ch;
+    font-size: min(var(--ws-heading-size-h1), 11cqi);
+    line-height: var(--ws-heading-leading-display);
+  }
+  .ws-heading[data-size="h2"] {
+    max-width: 30ch;
+    font-size: var(--ws-heading-size-h2);
+  }
+  .ws-heading[data-size="h3"] {
+    font-size: var(--ws-heading-size-h3);
+  }
+  .ws-heading[data-size="h4"] {
+    font-size: var(--ws-heading-size-h4);
+  }
+
+  /* The composition decides how loud the largest heading is. */
+  :global(:root[data-ws-heading-scale="modest"]) .ws-heading[data-size="display"] {
+    --ws-heading-scale: 0.82;
+  }
+  :global(:root[data-ws-heading-scale="monumental"]) .ws-heading[data-size="display"] {
+    --ws-heading-scale: 1.45;
+    max-width: 14ch;
+  }
+
+  @media (width >= 64rem) {
+    :global(:root[data-ws-heading-align="offset"]) .ws-heading[data-align="brand"] {
+      margin-inline-start: calc(100% / 12);
+    }
+  }
+</style>

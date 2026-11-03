@@ -14,7 +14,9 @@
   },
   "dependencies": {
     "@idrovocmich/brand-contract": "workspace:*",
+    "@idrovocmich/motion": "workspace:*",
     "@idrovocmich/tokens": "workspace:*",
+    "@idrovocmich/ui": "workspace:*",
     "@tailwindcss/vite": "catalog:",
     "astro": "catalog:",
     "tailwindcss": "catalog:"

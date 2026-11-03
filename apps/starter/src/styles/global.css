@@ -4,6 +4,8 @@
 
 @layer base {
   html {
+    /* Bleed reaches the viewport edge with 50vw, which includes the scrollbar. */
+    overflow-x: clip;
     background-color: var(--ws-color-surface-base);
     color: var(--ws-color-content-primary);
     font-family: var(--ws-font-family-body);

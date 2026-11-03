@@ -86,6 +86,21 @@ describe("tier rules", () => {
     expect(issues[0]?.message).toContain("solo pueden usar referencias");
   });
 
+  it("rejects two tokens that would produce the same CSS variable", () => {
+    const tree = createTokens();
+    // component "layout.margin-compact" and semantic "layout.margin.compact" are both
+    // --ws-layout-margin-compact, so the component token would reference itself.
+    const issues = validateTiers({
+      ...tree,
+      component: {
+        layout: {
+          "margin-compact": { $type: "dimension", $value: "{semantic.layout.margin.compact}" },
+        },
+      },
+    });
+    expect(issues[0]?.message).toContain("misma variable CSS (--ws-layout-margin-compact)");
+  });
+
   it("reports references to tokens that do not exist", () => {
     const issues = validateTiers(
       withComponent({ chip: { bg: { $type: "color", $value: "{semantic.color.nope}" } } }),

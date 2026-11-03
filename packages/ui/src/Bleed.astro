@@ -1,0 +1,57 @@
+---
+import type { HTMLAttributes } from "astro/types";
+
+interface Props extends HTMLAttributes<"div"> {
+  /** Which edges reach the viewport. */
+  side?: "both" | "start" | "end";
+  /**
+   * By default content only breaks out of the grid when the composition allows it
+   * (`data-ws-breakout="true"`). `force` breaks out for every brand.
+   */
+  force?: boolean;
+}
+
+const { side = "both", force = false, class: className, ...rest } = Astro.props;
+---
+
+<div
+  class:list={["ws-bleed", className]}
+  data-side={side}
+  data-force={force ? "" : undefined}
+  {...rest}
+>
+  <slot />
+</div>
+
+<!--
+  Bleed assumes its edge sits on the content edge of a "content" Container (the first or last
+  column of a Split, or the Container itself). The page should clip horizontal overflow
+  (html { overflow-x: clip }) because 100vw includes the scrollbar.
+-->
+<style>
+  .ws-bleed {
+    /* Distance from the container's content edge to the viewport edge. */
+    --ws-bleed-out: calc(
+      (100vw - min(100vw, var(--ws-flow-container))) / 2 + var(--ws-flow-margin-compact)
+    );
+  }
+  @media (width >= 48rem) {
+    .ws-bleed {
+      --ws-bleed-out: calc(
+        (100vw - min(100vw, var(--ws-flow-container))) / 2 + var(--ws-flow-margin-wide)
+      );
+    }
+  }
+  .ws-bleed[data-force][data-side="both"],
+  :global(:root[data-ws-breakout="true"]) .ws-bleed[data-side="both"] {
+    margin-inline: calc(-1 * var(--ws-bleed-out));
+  }
+  .ws-bleed[data-force][data-side="start"],
+  :global(:root[data-ws-breakout="true"]) .ws-bleed[data-side="start"] {
+    margin-inline-start: calc(-1 * var(--ws-bleed-out));
+  }
+  .ws-bleed[data-force][data-side="end"],
+  :global(:root[data-ws-breakout="true"]) .ws-bleed[data-side="end"] {
+    margin-inline-end: calc(-1 * var(--ws-bleed-out));
+  }
+</style>

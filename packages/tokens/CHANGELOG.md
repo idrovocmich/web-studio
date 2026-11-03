@@ -1,5 +1,11 @@
 # @idrovocmich/tokens
 
+## 0.4.0
+
+### Minor Changes
+
+- Section component tokens for `@idrovocmich/sections`: `section.bg-subtle`, `section.bg-inverse`, `section.fg-inverse`, `section.rule`, `section.rule-strong` and `section.index-color`.
+
 ## 0.3.0
 
 ### Minor Changes

@@ -1,6 +1,9 @@
+import type { Composition } from "@idrovocmich/brand-contract";
 import data from "../generated/brand-data.json";
 
-export const { brand, light, dark, contrast, composition, attributes } = data;
+export const { brand, light, dark, contrast, attributes } = data;
+// JSON imports widen string unions; the file is written from resolveComposition().
+export const composition = data.composition as unknown as Composition;
 
 export type SpecimenToken = (typeof light)[number];
 

@@ -87,14 +87,14 @@ contrast table, logos, imagery direction and voice. The two fixtures
 Each client brand lives in its own **private** repository and installs the engine from npm:
 
 ```bash
-pnpm add @idrovocmich/tokens@^0.3.0 @idrovocmich/brand-contract@^0.3.0
+pnpm add @idrovocmich/tokens@^0.4.0 @idrovocmich/brand-contract@^0.3.1
 ```
 
 ```jsonc
 // package.json of a brand repository
 "dependencies": {
-  "@idrovocmich/brand-contract": "^0.3.0",
-  "@idrovocmich/tokens": "^0.3.0"
+  "@idrovocmich/brand-contract": "^0.3.1",
+  "@idrovocmich/tokens": "^0.4.0"
 }
 ```
 

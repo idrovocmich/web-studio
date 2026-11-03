@@ -1,0 +1,155 @@
+---
+import type { Composition } from "@idrovocmich/brand-contract";
+import type { ManifestoSection } from "@idrovocmich/content-schema";
+import Reveal from "@idrovocmich/motion/Reveal.astro";
+import Container from "@idrovocmich/ui/Container.astro";
+import Eyebrow from "@idrovocmich/ui/Eyebrow.astro";
+import Heading from "@idrovocmich/ui/Heading.astro";
+import Split from "@idrovocmich/ui/Split.astro";
+import Stack from "@idrovocmich/ui/Stack.astro";
+import Text from "@idrovocmich/ui/Text.astro";
+import Section from "./Section.astro";
+import { indexLabel, manifestoVariant } from "./variants";
+
+interface Props {
+  section: ManifestoSection;
+  composition: Composition;
+}
+
+const { section, composition } = Astro.props;
+const variant = manifestoVariant(section, composition);
+const { eyebrow, statement, body, principles } = section;
+---
+
+<Section type="manifesto" {variant} id={section.id} signature={section.signature}>
+  <Container>
+    {variant === "monumental" && (
+      <Stack gap="xl">
+        {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+        <Heading level={2} size="display" class="manifesto-monumental">
+          {statement}
+        </Heading>
+        {body.length > 0 && (
+          <div class="manifesto-monumental-body">
+            {body.map((p) => (
+              <Text tone="secondary">{p}</Text>
+            ))}
+          </div>
+        )}
+      </Stack>
+    )}
+
+    {variant === "columns" && (
+      <Split ratio="5-7">
+        <Stack gap="md">
+          {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+          <Heading level={2} size="h2">
+            {statement}
+          </Heading>
+        </Stack>
+        <div class="manifesto-columns">
+          {body.map((p) => (
+            <Text measure={false}>{p}</Text>
+          ))}
+          {principles.length > 0 && (
+            <ul>
+              {principles.map((p) => (
+                <li>
+                  <Text as="span" measure={false}>
+                    {p}
+                  </Text>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </Split>
+    )}
+
+    {variant === "principles" && (
+      <Stack gap="xl">
+        <Stack gap="sm">
+          {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+          <Heading level={2} size="h2">
+            {statement}
+          </Heading>
+        </Stack>
+        {body.map((p) => (
+          <Text tone="secondary">{p}</Text>
+        ))}
+        <Reveal mode="stagger" as="ol" class="manifesto-principles">
+          {principles.map((p, i) => (
+            <li>
+              <span class="manifesto-index" aria-hidden="true">
+                {indexLabel(i)}
+              </span>
+              <Text as="span" size="lead" measure={false}>
+                {p}
+              </Text>
+            </li>
+          ))}
+        </Reveal>
+      </Stack>
+    )}
+  </Container>
+</Section>
+
+<style>
+  :global(.manifesto-monumental) {
+    max-width: none;
+  }
+  .manifesto-monumental-body {
+    display: grid;
+    gap: var(--ws-flow-gap-md);
+  }
+  @media (width >= 64rem) {
+    .manifesto-monumental-body {
+      width: 50%;
+      margin-inline-start: auto;
+    }
+  }
+
+  /* Columns: editorial body text in two newspaper columns on wide screens. */
+  .manifesto-columns {
+    display: flow-root;
+  }
+  .manifesto-columns > :global(*) + :global(*) {
+    margin-block-start: var(--ws-flow-gap-md);
+  }
+  .manifesto-columns ul {
+    margin-inline: 0;
+    padding-inline-start: 1.1em;
+  }
+  @media (width >= 64rem) {
+    .manifesto-columns {
+      columns: 2;
+      column-gap: var(--ws-flow-gutter-wide);
+    }
+  }
+
+  /* Principles: large index numbers and rules between rows. */
+  :global(.manifesto-principles) {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: var(--ws-section-rule-strong);
+  }
+  :global(.manifesto-principles) > li {
+    display: grid;
+    grid-template-columns: 4ch minmax(0, 1fr);
+    align-items: baseline;
+    gap: var(--ws-flow-gap-md);
+    padding-block: var(--ws-flow-gap-md);
+    border-bottom: var(--ws-section-rule);
+  }
+  .manifesto-index {
+    color: var(--ws-section-index-color);
+    font-family: var(--ws-eyebrow-font-mono);
+    font-size: var(--ws-text-size-small);
+    font-variant-numeric: tabular-nums;
+  }
+  :global(:root[data-ws-eyebrow="italic"]) .manifesto-index {
+    font-family: var(--ws-eyebrow-font-display);
+    font-style: italic;
+  }
+</style>

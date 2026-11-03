@@ -1,0 +1,22 @@
+---
+import Sections from "@idrovocmich/sections/Sections.astro";
+import type { Page } from "@idrovocmich/content-schema";
+import Base from "../layouts/Base.astro";
+import { composition } from "../lib/brand";
+import { pages } from "../lib/content";
+
+// Every page in src/content/pages is built from validated content; "" is the home page.
+export function getStaticPaths() {
+  return pages.map((page) => ({ params: { slug: page.slug || undefined }, props: { page } }));
+}
+
+interface Props {
+  page: Page;
+}
+
+const { page } = Astro.props;
+---
+
+<Base title={page.title} description={page.description}>
+  <Sections sections={page.sections} {composition} />
+</Base>

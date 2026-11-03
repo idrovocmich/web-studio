@@ -1,0 +1,138 @@
+---
+import type { Composition } from "@idrovocmich/brand-contract";
+import type { Site } from "@idrovocmich/content-schema";
+import Container from "@idrovocmich/ui/Container.astro";
+import Logo from "@idrovocmich/ui/Logo.astro";
+import { headerVariant, indexLabel } from "./variants";
+
+interface Props {
+  site: Site;
+  composition: Composition;
+  logo: { src: string; darkSrc?: string | undefined; alt: string };
+  /** Current path, to mark the active link with aria-current. */
+  currentPath?: string;
+  /** Accessible name for the navigation landmark. */
+  navLabel?: string;
+}
+
+const { site, composition, logo, currentPath = "/", navLabel = "Principal" } = Astro.props;
+const variant = headerVariant(site, composition);
+const isCurrent = (href: string): boolean =>
+  href === currentPath || (href !== "/" && currentPath.startsWith(`${href}/`));
+const logoProps = {
+  src: logo.src,
+  alt: logo.alt,
+  href: "/",
+  ...(logo.darkSrc && { darkSrc: logo.darkSrc }),
+};
+---
+
+<header class="ws-header" data-variant={variant}>
+  <Container>
+    <div class="ws-header-inner">
+      <Logo {...logoProps} height={variant === "editorial" ? "2.75rem" : "2rem"} />
+      <div class="ws-header-end">
+        <nav aria-label={navLabel}>
+          <ul>
+            {site.nav.map((link, i) => (
+              <li>
+                <a href={link.href} aria-current={isCurrent(link.href) ? "page" : undefined}>
+                  {variant === "editorial" && (
+                    <span class="ws-header-index" aria-hidden="true">
+                      {indexLabel(i)}
+                    </span>
+                  )}
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <div class="ws-header-actions">
+          <slot name="actions" />
+        </div>
+      </div>
+    </div>
+  </Container>
+</header>
+
+<style>
+  .ws-header-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--ws-flow-gap-sm) var(--ws-flow-gap-lg);
+    padding-block: var(--ws-flow-gap-sm);
+  }
+  .ws-header-end {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--ws-flow-gap-xs) var(--ws-flow-gap-lg);
+  }
+  nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ws-flow-gap-xs) var(--ws-flow-gap-md);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  nav a {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.4em;
+    min-height: 1.5rem;
+    color: var(--ws-text-color);
+    font-size: var(--ws-text-size-small);
+    text-decoration: none;
+  }
+  nav a:hover,
+  nav a[aria-current="page"] {
+    text-decoration: underline;
+    text-underline-offset: 0.3em;
+  }
+  nav a:focus-visible {
+    outline: var(--ws-link-focus);
+    outline-offset: 2px;
+  }
+  .ws-header-actions:empty {
+    display: none;
+  }
+
+  /* Minimal: a single quiet line under the bar. */
+  .ws-header[data-variant="minimal"] {
+    border-bottom: var(--ws-section-rule);
+  }
+
+  /* Editorial: a larger logo and a numbered index, like a magazine masthead. */
+  .ws-header[data-variant="editorial"] .ws-header-inner {
+    align-items: end;
+    padding-block: var(--ws-flow-gap-md);
+    border-bottom: var(--ws-section-rule-strong);
+  }
+  .ws-header[data-variant="editorial"] nav a {
+    font-family: var(--ws-heading-font-family);
+    font-size: var(--ws-text-size-body);
+  }
+  .ws-header-index {
+    color: var(--ws-section-index-color);
+    font-size: var(--ws-text-size-caption);
+    font-style: italic;
+  }
+
+  /* Technical: a dense band, navigation in mono caps. */
+  .ws-header[data-variant="technical"] {
+    border-bottom: var(--ws-separator-heavy);
+  }
+  .ws-header[data-variant="technical"] .ws-header-inner {
+    padding-block: var(--ws-flow-gap-xs);
+  }
+  .ws-header[data-variant="technical"] nav a {
+    font-family: var(--ws-eyebrow-font-mono);
+    font-size: var(--ws-text-size-caption);
+    letter-spacing: var(--ws-eyebrow-tracking);
+    text-transform: uppercase;
+  }
+</style>

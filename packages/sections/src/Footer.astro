@@ -1,0 +1,159 @@
+---
+import type { Composition } from "@idrovocmich/brand-contract";
+import type { Site } from "@idrovocmich/content-schema";
+import Container from "@idrovocmich/ui/Container.astro";
+import Text from "@idrovocmich/ui/Text.astro";
+import { footerVariant } from "./variants";
+
+interface Props {
+  site: Site;
+  composition: Composition;
+  /** Accessible names and labels (the engine does not assume a language). */
+  labels?: { nav: string; links: string; contact: string };
+}
+
+const {
+  site,
+  composition,
+  labels = { nav: "Secciones", links: "Más", contact: "Contacto" },
+} = Astro.props;
+const variant = footerVariant(site, composition);
+const { nav, footer, contact, name } = site;
+const year = new Date().getFullYear();
+---
+
+<footer class="ws-footer" data-variant={variant}>
+  <Container>
+    {variant === "signature" && (
+      <p class="ws-footer-signature" aria-hidden="true">
+        {name}
+      </p>
+    )}
+
+    {variant === "index" && (
+      <div class="ws-footer-index">
+        <div>
+          <Text size="lead">{name}</Text>
+          {footer.note && <Text tone="secondary">{footer.note}</Text>}
+        </div>
+        <nav aria-label={labels.nav}>
+          <ul>
+            {nav.map((l) => (
+              <li>
+                <a href={l.href}>{l.label}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        {footer.links.length > 0 && (
+          <nav aria-label={labels.links}>
+            <ul>
+              {footer.links.map((l) => (
+                <li>
+                  <a href={l.href}>{l.label}</a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
+        {contact && (
+          <address>
+            {contact.email && <a href={`mailto:${contact.email}`}>{contact.email}</a>}
+            {contact.phone && (
+              <a href={`tel:${contact.phone.replace(/\s+/g, "")}`}>{contact.phone}</a>
+            )}
+            {contact.address && <span>{contact.address}</span>}
+          </address>
+        )}
+      </div>
+    )}
+
+    <div class="ws-footer-bar">
+      <Text size="small" tone="secondary" measure={false}>
+        © {year} {name}
+        {variant !== "index" && footer.note ? ` · ${footer.note}` : ""}
+      </Text>
+      {variant !== "index" && footer.links.length > 0 && (
+        <nav aria-label={labels.links}>
+          <ul>
+            {footer.links.map((l) => (
+              <li>
+                <a href={l.href}>{l.label}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
+    </div>
+  </Container>
+</footer>
+
+<style>
+  .ws-footer {
+    padding-block: var(--ws-flow-gap-lg);
+    border-top: var(--ws-section-rule);
+  }
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ws-flow-gap-xs) var(--ws-flow-gap-md);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  a {
+    color: var(--ws-text-color);
+    font-size: var(--ws-text-size-small);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  a:hover {
+    color: var(--ws-link-color-hover);
+  }
+  a:focus-visible {
+    outline: var(--ws-link-focus);
+    outline-offset: 2px;
+  }
+  .ws-footer-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--ws-flow-gap-sm);
+  }
+
+  /* Index: a wide directory of links and contact details. */
+  .ws-footer-index {
+    display: grid;
+    gap: var(--ws-flow-gap-xl) var(--ws-flow-gutter-wide);
+    padding-block: var(--ws-flow-gap-xl);
+  }
+  .ws-footer-index ul {
+    flex-direction: column;
+  }
+  .ws-footer-index address {
+    display: grid;
+    gap: var(--ws-flow-gap-2xs);
+    font-style: normal;
+  }
+  @media (width >= 48rem) {
+    .ws-footer-index {
+      grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  /* Signature: the brand name set as large as the page allows. */
+  .ws-footer[data-variant="signature"] {
+    border-top: var(--ws-separator-heavy);
+  }
+  .ws-footer-signature {
+    margin: 0 0 var(--ws-flow-gap-lg);
+    color: var(--ws-heading-color);
+    font-family: var(--ws-heading-font-family);
+    font-size: 15cqi;
+    font-weight: var(--ws-heading-font-weight);
+    line-height: 0.9;
+    letter-spacing: var(--ws-heading-tracking);
+    white-space: nowrap;
+  }
+</style>

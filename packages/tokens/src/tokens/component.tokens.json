@@ -123,6 +123,12 @@
   },
   "section": {
     "padding-y": { "$type": "dimension", "$value": "{semantic.space.section}" },
-    "gap": { "$type": "dimension", "$value": "{semantic.space.xl}" }
+    "gap": { "$type": "dimension", "$value": "{semantic.space.xl}" },
+    "bg-subtle": { "$type": "color", "$value": "{semantic.color.surface.subtle}" },
+    "bg-inverse": { "$type": "color", "$value": "{semantic.color.surface.inverse}" },
+    "fg-inverse": { "$type": "color", "$value": "{semantic.color.content.inverse}" },
+    "rule": { "$type": "border", "$value": "{semantic.border.default}" },
+    "rule-strong": { "$type": "border", "$value": "{semantic.border.strong}" },
+    "index-color": { "$type": "color", "$value": "{semantic.color.content.muted}" }
   }
 }

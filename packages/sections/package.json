@@ -2,23 +2,33 @@
   "name": "@idrovocmich/sections",
   "version": "0.0.0",
   "private": true,
-  "description": "Composable page sections built from ui primitives and configured through the brand contract.",
+  "description": "Page sections whose composition is chosen from the brand's art direction, built from ui primitives and validated content.",
   "license": "MIT",
+  "author": "idrovocmich",
   "type": "module",
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    }
+    "./*.astro": "./src/*.astro",
+    "./variants": "./src/variants.ts"
   },
   "files": [
-    "dist"
+    "src",
+    "!src/**/*.test.ts"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "astro check"
+  },
+  "dependencies": {
+    "@idrovocmich/brand-contract": "workspace:*",
+    "@idrovocmich/content-schema": "workspace:*",
+    "@idrovocmich/motion": "workspace:*",
+    "@idrovocmich/ui": "workspace:*"
+  },
+  "peerDependencies": {
+    "astro": "catalog:"
   },
   "devDependencies": {
+    "@astrojs/check": "catalog:",
+    "astro": "catalog:",
     "typescript": "catalog:"
   }
 }

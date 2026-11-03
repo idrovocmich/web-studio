@@ -1,15 +1,23 @@
 ---
-import Logo from "@idrovocmich/ui/Logo.astro";
+import Footer from "@idrovocmich/sections/Footer.astro";
+import Header from "@idrovocmich/sections/Header.astro";
 import "../styles/global.css";
-import { attributes, brand, googleFontsHref, logoSrc } from "../lib/brand";
+import { attributes, brand, composition, googleFontsHref, logoSrc } from "../lib/brand";
+import { site } from "../lib/content";
 
 interface Props {
   title: string;
+  description?: string;
 }
 
-const { title } = Astro.props;
-const fontsHref = googleFontsHref();
+const { title, description } = Astro.props;
 const darkLogo = brand.logos.variants.find((v) => v.background !== "light");
+const logo = {
+  src: logoSrc(brand.logos.primary.file),
+  alt: `${brand.name}: inicio`,
+  darkSrc: darkLogo && logoSrc(darkLogo.file),
+};
+const fontsHref = googleFontsHref();
 // `attributes` are the data-ws-* direction and composition flags the components follow.
 ---
 
@@ -18,6 +26,7 @@ const darkLogo = brand.logos.variants.find((v) => v.background !== "light");
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title} · {brand.name}</title>
+    {description && <meta name="description" content={description} />}
     {fontsHref && <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />}
     {fontsHref && <link rel="stylesheet" href={fontsHref} />}
     <script is:inline>
@@ -30,43 +39,20 @@ const darkLogo = brand.logos.variants.find((v) => v.background !== "light");
     </script>
   </head>
   <body class="min-h-dvh bg-surface-base text-content-primary antialiased">
-    <header class="border-b border-line-subtle">
-      <div class="ws-container flex items-center justify-between gap-md py-sm">
-        <Logo
-          href="/"
-          src={logoSrc(brand.logos.primary.file)}
-          alt={`${brand.name}: inicio`}
-          {...(darkLogo && { darkSrc: logoSrc(darkLogo.file) })}
-        />
-        <nav class="flex items-center gap-md text-small">
-          <a class="ws-link" href="/">
-            Inicio
-          </a>
-          <a class="ws-link" href="/direccion">
-            Dirección
-          </a>
-          <a class="ws-link" href="/specimens">
-            Especímenes
-          </a>
-          <button
-            type="button"
-            id="theme-toggle"
-            class="rounded-pill border border-line-strong px-sm py-3xs text-caption"
-          >
-            Tema: sistema
-          </button>
-        </nav>
-      </div>
-    </header>
+    <Header {site} {composition} {logo} currentPath={Astro.url.pathname}>
+      <button
+        slot="actions"
+        type="button"
+        id="theme-toggle"
+        class="rounded-pill border border-line-strong px-sm py-3xs text-caption"
+      >
+        Tema: sistema
+      </button>
+    </Header>
     <main>
       <slot />
     </main>
-    <footer class="mt-section border-t border-line-subtle">
-      <p class="ws-container py-lg text-caption text-content-muted">
-        {brand.name} · Construido con web-studio. Marca activa:{" "}
-        <code class="font-mono">{brand.id}</code>
-      </p>
-    </footer>
+    <Footer {site} {composition} />
 
     <script>
       const order = ["system", "light", "dark"] as const;

@@ -1,0 +1,127 @@
+---
+import type { Composition } from "@idrovocmich/brand-contract";
+import type { CtaSection } from "@idrovocmich/content-schema";
+import Button from "@idrovocmich/ui/Button.astro";
+import Container from "@idrovocmich/ui/Container.astro";
+import Field from "@idrovocmich/ui/Field.astro";
+import Heading from "@idrovocmich/ui/Heading.astro";
+import Split from "@idrovocmich/ui/Split.astro";
+import Stack from "@idrovocmich/ui/Stack.astro";
+import Text from "@idrovocmich/ui/Text.astro";
+import Section from "./Section.astro";
+import { ctaVariant } from "./variants";
+
+interface Props {
+  section: CtaSection;
+  composition: Composition;
+  /** Labels for the form fields (the engine does not assume a language). */
+  labels?: { name: string; email: string };
+}
+
+const { section, composition, labels = { name: "Nombre", email: "Correo" } } = Astro.props;
+const variant = ctaVariant(section, composition);
+const { title, body, action, form } = section;
+---
+
+<Section
+  type="cta"
+  {variant}
+  id={section.id}
+  signature={section.signature}
+  tone={variant === "band" ? "inverse" : "base"}
+>
+  <Container>
+    {variant === "statement" && (
+      <Stack gap="lg">
+        <Heading level={2} size="h1">
+          {title}
+        </Heading>
+        {body && <Text tone="secondary">{body}</Text>}
+        <a class="cta-statement-link" href={action.href}>
+          {action.label}
+        </a>
+      </Stack>
+    )}
+
+    {variant === "split-form" && form && (
+      <Split align="center">
+        <Stack gap="md">
+          <Heading level={2}>{title}</Heading>
+          {body && <Text tone="secondary">{body}</Text>}
+        </Stack>
+        <form action={form.action} method="post" class="cta-form">
+          <Stack gap="md">
+            <Field label={labels.name} name="nombre" autocomplete="name" required />
+            <Field label={labels.email} name="correo" type="email" autocomplete="email" required />
+            <div>
+              <Button type="submit">{form.submitLabel}</Button>
+            </div>
+          </Stack>
+        </form>
+      </Split>
+    )}
+
+    {variant === "band" && (
+      <div class="cta-band">
+        <Heading level={2} size="h1">
+          {title}
+        </Heading>
+        <div class="cta-band-side">
+          {body && <Text>{body}</Text>}
+          <a class="cta-band-link" href={action.href}>
+            {action.label}
+          </a>
+        </div>
+      </div>
+    )}
+  </Container>
+</Section>
+
+<style>
+  /* One action, set as a large underlined link instead of a second button. */
+  .cta-statement-link,
+  .cta-band-link {
+    align-self: start;
+    font-family: var(--ws-heading-font-family);
+    font-size: var(--ws-heading-size-h3);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.2em;
+  }
+  .cta-statement-link {
+    color: var(--ws-link-color);
+  }
+  .cta-statement-link:hover {
+    color: var(--ws-link-color-hover);
+  }
+  .cta-statement-link:focus-visible,
+  .cta-band-link:focus-visible {
+    outline: var(--ws-link-focus);
+    outline-offset: 4px;
+  }
+  .cta-band-link {
+    color: inherit;
+  }
+  .cta-band-link:hover {
+    text-decoration-thickness: 4px;
+  }
+
+  .cta-band {
+    display: grid;
+    gap: var(--ws-flow-gap-lg);
+  }
+  .cta-band-side {
+    display: grid;
+    align-content: end;
+    gap: var(--ws-flow-gap-md);
+  }
+  @media (width >= 48rem) {
+    .cta-band {
+      grid-template-columns: minmax(0, 8fr) minmax(0, 4fr);
+      align-items: end;
+    }
+  }
+  .cta-form {
+    width: 100%;
+  }
+</style>

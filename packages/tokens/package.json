@@ -1,6 +1,6 @@
 {
   "name": "@idrovocmich/tokens",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Three-tier W3C DTCG design tokens (primitive, semantic, component) with a Style Dictionary pipeline to CSS variables and a Tailwind CSS v4 @theme block.",
   "license": "MIT",
   "author": "idrovocmich",
